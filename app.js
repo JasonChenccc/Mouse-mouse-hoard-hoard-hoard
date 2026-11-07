@@ -18,10 +18,13 @@ App({
         return repo.bootstrap();
       })
       .then(function (r) {
-        if (r && r.ok) {
-          g.cloudReadyAt = Date.now();
+        if (r && r.ok) g.cloudReadyAt = Date.now();
+        // 条目到位后拉全站票数，天梯才能按多人统计算档位
+        return repo.refreshAggregates();
+      })
+      .then(function (ok) {
+        if (ok) {
           g.lastSyncAt = repo.fetchedAt();
-          // 数据换成云端的了，让当前页重算一次
           const pages = getCurrentPages();
           const cur = pages.length ? pages[pages.length - 1] : null;
           if (cur && typeof cur.refresh === 'function') cur.refresh();

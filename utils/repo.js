@@ -20,6 +20,9 @@ const mem = {
   sources: DATA.sources
 };
 
+// 云端票数聚合：{ offerId: [c0,c1,c2,c3] }。为 null 时全部按本机票算。
+let aggregates = null;
+
 // ---------- 读 ----------
 
 function offers() {
@@ -88,6 +91,14 @@ function castVote(id, idx) {
   votes[id] = { c: c, mine: idx };
   store.setVotes(votes);
 
+  // 乐观更新聚合，让天梯在下次拉取前就反映这一票
+  if (aggregates) {
+    if (!aggregates[id]) aggregates[id] = emptyCounts();
+    const agg = aggregates[id];
+    if (cur.mine >= 0 && agg[cur.mine] > 0) agg[cur.mine] -= 1;
+    if (idx >= 0 && idx < agg.length) agg[idx] += 1;
+  }
+
   const offer = offerById(id);
   const payload = {
     type: 'tier',
@@ -105,7 +116,17 @@ function castVote(id, idx) {
 }
 
 function getVotes() {
-  return store.getVotes();
+  const local = store.getVotes();
+  if (!aggregates) return local;
+  // 有云端聚合就以聚合为准（含所有人），「我投了哪档」仍取本机
+  const out = {};
+  Object.keys(local).forEach(function (id) {
+    out[id] = { c: aggregates[id] || local[id].c, mine: local[id].mine };
+  });
+  Object.keys(aggregates).forEach(function (id) {
+    if (!out[id]) out[id] = { c: aggregates[id], mine: -1 };
+  });
+  return out;
 }
 
 function clearVotes() {
@@ -215,6 +236,24 @@ function replaceData(next) {
   if (next && next.sources) mem.sources = next.sources;
 }
 
+// 拉一次全站票数聚合。失败就保持 null，天梯退回本机票。
+function refreshAggregates() {
+  return cloudData.pullVoteStats().then(function (r) {
+    if (!r.ok) return false;
+    const map = {};
+    r.data.forEach(function (row) {
+      const id = row.offer_id;
+      if (!map[id]) map[id] = emptyCounts();
+      const t = Number(row.tier);
+      if (t >= 0 && t < map[id].length) map[id][t] = Number(row.cnt) || 0;
+    });
+    aggregates = map;
+    return true;
+  }).catch(function () {
+    return false;
+  });
+}
+
 // 启动时拉一次云端条目。失败就继续用主包里的 54 条，不抛异常。
 function bootstrap() {
   return cloudData.pullOffers().then(function (r) {
@@ -322,6 +361,7 @@ module.exports = {
 
   replaceData: replaceData,
   bootstrap: bootstrap,
+  refreshAggregates: refreshAggregates,
   login: login,
   restoreSession: restoreSession,
   isOnline: isOnline,

@@ -174,8 +174,23 @@ async function pullActivity() {
   }
 }
 
+// 跨用户票数聚合。votes 表本身只让读自己的，这里走 SECURITY DEFINER 函数，
+// 只返回「某条目某档几票」，不带任何人的 openid。
+async function pullVoteStats() {
+  const c = cloud.get();
+  if (!c) return { ok: false, message: '云服务未就绪' };
+  try {
+    const { data, error } = await c.database.rpc('vote_stats');
+    if (error) return fail(error, '拉取票数统计');
+    return { ok: true, data: data || [] };
+  } catch (e) {
+    return fail(e, '拉取票数统计');
+  }
+}
+
 module.exports = {
   pullOffers: pullOffers,
+  pullVoteStats: pullVoteStats,
   pushVote: pushVote,
   pullVotes: pullVotes,
   pushFav: pushFav,
