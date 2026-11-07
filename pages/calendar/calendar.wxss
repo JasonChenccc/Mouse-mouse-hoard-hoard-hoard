@@ -1,0 +1,424 @@
+.page {
+  padding: 28rpx 26rpx 60rpx;
+}
+
+.hd {
+  padding: 4rpx 0 22rpx;
+}
+
+.h1 {
+  font-size: 42rpx;
+  font-size: calc(42rpx * var(--fs, 1));
+  font-weight: 700;
+  letter-spacing: -1rpx;
+}
+
+.hd-sub {
+  display: block;
+  margin-top: 6rpx;
+  color: #8a8a84;
+  font-size: 22rpx;
+  font-size: calc(22rpx * var(--fs, 1));
+}
+
+/* 日历 */
+.cal {
+  padding: 14rpx 12rpx 8rpx;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 20rpx;
+  background: #ffffff;
+}
+
+.cal-top {
+  display: flex;
+  align-items: center;
+  padding: 0 4rpx 8rpx;
+}
+
+.cal-nav {
+  width: 48rpx;
+  height: 48rpx;
+  line-height: 44rpx;
+  text-align: center;
+  color: #6d6a62;
+  font-size: 28rpx;
+  font-size: calc(28rpx * var(--fs, 1));
+  border-radius: 12rpx;
+}
+
+.cal-month {
+  flex: 1;
+  color: #1c1c1a;
+  font-size: 24rpx;
+  font-size: calc(24rpx * var(--fs, 1));
+  font-weight: 600;
+  text-align: center;
+}
+
+.cal-today {
+  padding: 5rpx 14rpx;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 30rpx;
+  color: #4a4a46;
+  font-size: 18rpx;
+  font-size: calc(18rpx * var(--fs, 1));
+}
+
+.cal-week {
+  display: flex;
+  padding-bottom: 4rpx;
+  border-bottom: 2rpx solid #f4f3ee;
+}
+
+.wk {
+  width: 14.2857%;
+  text-align: center;
+  color: #b4b0a6;
+  font-size: 17rpx;
+  font-size: calc(17rpx * var(--fs, 1));
+}
+
+.cal-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding-top: 4rpx;
+}
+
+.cell {
+  position: relative;
+  width: 14.2857%;
+  height: 54rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+}
+
+.cell-n {
+  color: #3a3a36;
+  font-size: 22rpx;
+  font-size: calc(22rpx * var(--fs, 1));
+  line-height: 1;
+}
+
+.cell.has .cell-n {
+  color: #1c1c1a;
+  font-weight: 600;
+}
+
+.dot {
+  width: 6rpx;
+  height: 6rpx;
+  margin-top: 4rpx;
+  border-radius: 50%;
+  background: #c99a3f;
+}
+
+.cell.today {
+  background: #f6f1e2;
+}
+
+.cell.today .cell-n {
+  color: #8a6b1f;
+  font-weight: 700;
+}
+
+.cell.sel {
+  background: #1c1c1a;
+}
+
+.cell.sel .cell-n {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.cell.sel .dot {
+  background: #c99a3f;
+}
+
+/* 选中日 */
+.day {
+  margin-top: 16rpx;
+  padding: 22rpx 24rpx;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 22rpx;
+  background: #ffffff;
+}
+
+.day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6rpx;
+}
+
+.day-t {
+  color: #1c1c1a;
+  font-size: 25rpx;
+  font-size: calc(25rpx * var(--fs, 1));
+  font-weight: 600;
+}
+
+.day-c {
+  color: #a8a49a;
+  font-size: 20rpx;
+  font-size: calc(20rpx * var(--fs, 1));
+}
+
+.day-item {
+  padding: 16rpx 0;
+  border-top: 2rpx solid #f4f3ee;
+}
+
+.di-name {
+  display: block;
+  color: #1c1c1a;
+  font-size: 24rpx;
+  font-size: calc(24rpx * var(--fs, 1));
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.di-sub {
+  display: block;
+  margin-top: 4rpx;
+  color: #a8a49a;
+  font-size: 19rpx;
+  font-size: calc(19rpx * var(--fs, 1));
+  line-height: 1.5;
+}
+
+.day-empty {
+  display: block;
+  padding: 14rpx 0 6rpx;
+  color: #b4b0a6;
+  font-size: 21rpx;
+  font-size: calc(21rpx * var(--fs, 1));
+}
+
+/* 未来到期 */
+.up {
+  margin-top: 16rpx;
+  padding: 22rpx 24rpx;
+  border: 2rpx solid #f3e2c7;
+  border-radius: 22rpx;
+  background: #fdf8ee;
+}
+
+.up-t {
+  display: block;
+  margin-bottom: 6rpx;
+  color: #8a5a12;
+  font-size: 20rpx;
+  font-size: calc(20rpx * var(--fs, 1));
+  letter-spacing: 2rpx;
+}
+
+.up-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14rpx 0;
+  border-top: 2rpx solid #f7ecd7;
+}
+
+.up-name {
+  flex: 1;
+  color: #3a3a36;
+  font-size: 23rpx;
+  font-size: calc(23rpx * var(--fs, 1));
+  line-height: 1.4;
+  padding-right: 16rpx;
+}
+
+.up-left {
+  flex: none;
+  color: #a8781f;
+  font-size: 21rpx;
+  font-size: calc(21rpx * var(--fs, 1));
+  font-weight: 600;
+}
+
+.undated {
+  display: block;
+  margin-top: 14rpx;
+  padding: 0 4rpx;
+  color: #a8a49a;
+  font-size: 19rpx;
+  font-size: calc(19rpx * var(--fs, 1));
+  line-height: 1.7;
+}
+
+/* 番茄钟 */
+.pomo {
+  margin-top: 26rpx;
+  padding: 30rpx 26rpx 26rpx;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 26rpx;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bubble {
+  max-width: 92%;
+  padding: 16rpx 22rpx;
+  border-radius: 18rpx;
+  background: #f4f3ee;
+  color: #3a3a36;
+  font-size: 22rpx;
+  font-size: calc(22rpx * var(--fs, 1));
+  line-height: 1.55;
+  text-align: center;
+}
+
+.pet-state {
+  margin-left: 14rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 20rpx;
+  background: #f4f3ee;
+  color: #6d6a62;
+  font-size: 19rpx;
+  font-size: calc(19rpx * var(--fs, 1));
+}
+
+/* 宠物头顶待办 */
+.task {
+  max-width: 96%;
+  margin-bottom: 12rpx;
+  padding: 10rpx 18rpx;
+  border-radius: 14rpx;
+  background: #fdf5ea;
+  border: 2rpx solid #f3e2c7;
+}
+
+.task-t {
+  color: #8a5a12;
+  font-size: 20rpx;
+  font-size: calc(20rpx * var(--fs, 1));
+  line-height: 1.5;
+}
+
+/* 素材署名（CC BY-NC-SA 4.0 要求） */
+.attr {
+  margin-top: 14rpx;
+  color: #c4c0b6;
+  font-size: 17rpx;
+  font-size: calc(17rpx * var(--fs, 1));
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* ---- 以下为清理死代码时被误删、现补回并适配 GIF 尺寸的样式 ---- */
+.stage {
+  height: 236rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #f7f6f2;
+  border-radius: 20rpx;
+  padding: 8rpx 0;
+}
+
+.pet-gif {
+  width: 376rpx;
+  height: 212rpx;
+}
+
+.pet-row {
+  display: flex;
+  align-items: center;
+  margin-top: 14rpx;
+}
+
+.pet-name {
+  color: #6d6a62;
+  font-size: 21rpx;
+  font-size: calc(21rpx * var(--fs, 1));
+}
+
+.pet-switch {
+  margin-left: 14rpx;
+  padding: 3rpx 14rpx;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 20rpx;
+  color: #8a8a84;
+  font-size: 19rpx;
+  font-size: calc(19rpx * var(--fs, 1));
+}
+
+.time {
+  margin-top: 16rpx;
+  color: #1c1c1a;
+  font-size: 76rpx;
+  font-size: calc(76rpx * var(--fs, 1));
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  line-height: 1.1;
+}
+
+.bar {
+  width: 100%;
+  height: 8rpx;
+  margin-top: 18rpx;
+  border-radius: 4rpx;
+  background: #f4f3ee;
+  overflow: hidden;
+}
+
+.bar-in {
+  height: 100%;
+  background: #c99a3f;
+  border-radius: 4rpx;
+}
+
+.presets {
+  display: flex;
+  margin-top: 22rpx;
+}
+
+.pre {
+  margin: 0 5rpx;
+  padding: 9rpx 18rpx;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 30rpx;
+  color: #4a4a46;
+  font-size: 21rpx;
+  font-size: calc(21rpx * var(--fs, 1));
+}
+
+.pre.on {
+  background: #1c1c1a;
+  border-color: #1c1c1a;
+  color: #ffffff;
+}
+
+.ctrl {
+  display: flex;
+  width: 100%;
+  margin-top: 24rpx;
+}
+
+.btn {
+  flex: 1;
+  padding: 20rpx 0;
+  border-radius: 16rpx;
+  font-size: 25rpx;
+  font-size: calc(25rpx * var(--fs, 1));
+  text-align: center;
+}
+
+.btn.ghost {
+  margin-right: 12rpx;
+  flex: 0 0 180rpx;
+  border: 2rpx solid #e6e4dd;
+  color: #6d6a62;
+}
+
+.btn.main {
+  background: #1c1c1a;
+  color: #ffffff;
+}

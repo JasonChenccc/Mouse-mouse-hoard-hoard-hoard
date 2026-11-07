@@ -1,0 +1,148 @@
+.page {
+  padding: 28rpx 26rpx 60rpx;
+}
+
+.hd {
+  padding: 4rpx 0 22rpx;
+}
+
+.h1 {
+  font-size: 42rpx;
+  font-size: calc(42rpx * var(--fs, 1));
+  font-weight: 700;
+  letter-spacing: -1rpx;
+}
+
+.hd-sub {
+  display: block;
+  margin-top: 6rpx;
+  color: #8a8a84;
+  font-size: 22rpx;
+  font-size: calc(22rpx * var(--fs, 1));
+}
+
+.stats {
+  display: flex;
+  padding: 22rpx 0;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 22rpx;
+  background: #ffffff;
+}
+
+.stat {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-n {
+  display: block;
+  color: #1c1c1a;
+  font-size: 34rpx;
+  font-size: calc(34rpx * var(--fs, 1));
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.stat-l {
+  display: block;
+  margin-top: 4rpx;
+  color: #a8a49a;
+  font-size: 19rpx;
+  font-size: calc(19rpx * var(--fs, 1));
+}
+
+.list {
+  margin-top: 16rpx;
+  padding: 6rpx 24rpx;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 22rpx;
+  background: #ffffff;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #f4f3ee;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item-l {
+  flex: 1;
+  overflow: hidden;
+}
+
+.item-name {
+  display: block;
+  color: #1c1c1a;
+  font-size: 24rpx;
+  font-size: calc(24rpx * var(--fs, 1));
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.item-sub {
+  display: block;
+  margin-top: 5rpx;
+  color: #b4b0a6;
+  font-size: 19rpx;
+  font-size: calc(19rpx * var(--fs, 1));
+}
+
+.item-v {
+  flex: none;
+  margin-left: 12rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  background: #f4f3ee;
+  color: #6d6a62;
+  font-size: 20rpx;
+  font-size: calc(20rpx * var(--fs, 1));
+}
+
+.item-v.xl {
+  background: #fbf1df;
+  color: #a8781f;
+}
+
+.item-v.fav {
+  background: #e8f4ef;
+  color: #0f6e56;
+}
+
+.empty {
+  display: block;
+  padding: 60rpx 20rpx;
+  color: #b4b0a6;
+  font-size: 21rpx;
+  font-size: calc(21rpx * var(--fs, 1));
+  line-height: 1.7;
+  text-align: center;
+}
+
+.foot {
+  margin-top: 24rpx;
+  padding: 0 4rpx;
+}
+
+.foot-t {
+  display: block;
+  color: #a8a49a;
+  font-size: 19rpx;
+  font-size: calc(19rpx * var(--fs, 1));
+  line-height: 1.7;
+}
+
+.reset {
+  margin-top: 22rpx;
+  padding: 18rpx 0;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 16rpx;
+  color: #6d6a62;
+  font-size: 22rpx;
+  font-size: calc(22rpx * var(--fs, 1));
+  text-align: center;
+}

@@ -1,0 +1,52 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/calendar/calendar",
+    "pages/favorite/favorite",
+    "pages/mine/mine",
+    "pages/detail/detail",
+    "pages/impact/impact"
+  ],
+  "window": {
+    "navigationBarTitleText": "每日token大赛",
+    "navigationBarBackgroundColor": "#f4f3ef",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f4f3ef",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#a8a49a",
+    "selectedColor": "#1c1c1a",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "天梯",
+        "iconPath": "assets/tab/ladder.png",
+        "selectedIconPath": "assets/tab/ladder-on.png"
+      },
+      {
+        "pagePath": "pages/calendar/calendar",
+        "text": "日历",
+        "iconPath": "assets/tab/cal.png",
+        "selectedIconPath": "assets/tab/cal-on.png"
+      },
+      {
+        "pagePath": "pages/favorite/favorite",
+        "text": "最爱榜",
+        "iconPath": "assets/tab/heart.png",
+        "selectedIconPath": "assets/tab/heart-on.png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的",
+        "iconPath": "assets/tab/mine.png",
+        "selectedIconPath": "assets/tab/mine-on.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

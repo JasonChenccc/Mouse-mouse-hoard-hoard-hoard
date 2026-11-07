@@ -1,0 +1,172 @@
+<view class="page {{fontClass}}">
+
+  <view class="hd">
+    <view class="hd-top">
+      <text class="h1">每日token大赛</text>
+      <view class="hd-date" bindtap="onShowUpdated">
+        <text class="d-main">上次刷新：{{refreshClock}}</text>
+        <text class="d-sub">{{freshness}} · 自动同步</text>
+      </view>
+    </view>
+    <text class="hd-sub">评的是这条路值不值得走 · 共 {{stats.total}} 条</text>
+  </view>
+
+  <view class="stats">
+    <view class="stat">
+      <text class="stat-n">{{stats.api}}</text>
+      <text class="stat-l">API</text>
+    </view>
+    <view class="stat">
+      <text class="stat-n">{{stats.client}}</text>
+      <text class="stat-l">客户端</text>
+    </view>
+    <view class="stat">
+      <text class="stat-n">{{stats.web}}</text>
+      <text class="stat-l">网页</text>
+    </view>
+    <view class="stat">
+      <text class="stat-n">{{stats.rated}}</text>
+      <text class="stat-l">已评级</text>
+    </view>
+  </view>
+
+  <view class="god" wx:if="{{god}}">
+    <view class="god-top">
+      <text class="god-lab">幻 神</text>
+      <text class="god-tag">{{god.people}} 人评 · {{god.ratio}}% 投超大杯</text>
+    </view>
+    <text class="god-name">{{god.name}}</text>
+    <text class="god-sub">{{god.quota}}</text>
+  </view>
+
+  <view class="god-empty" wx:else bindtap="onPreviewMascot">
+    <image class="ge-img" src="{{mascot.image}}" mode="aspectFill"></image>
+    <view class="ge-fade"></view>
+    <view class="ge-body">
+      <text class="ge-lab">幻 神 · 虚位以待</text>
+      <text class="ge-title">{{mascot.title}}</text>
+      <text class="ge-sub">{{mascot.sub}}</text>
+    </view>
+    <text class="ge-zoom">点击看图</text>
+  </view>
+
+  <view class="rules" bindtap="onShowRule">
+    <view class="r-row" wx:for="{{rules}}" wx:key="k">
+      <text class="r-k {{item.k}}">{{item.name}}</text>
+      <text class="r-v">{{item.desc}}</text>
+    </view>
+    <text class="r-tip">过半才算定档，否则标「分歧」。点这里看完整规则 ›</text>
+  </view>
+
+  <view class="search-wrap">
+    <input
+      class="search"
+      placeholder="搜模型、厂商或 ID"
+      placeholder-class="ph"
+      value="{{query}}"
+      bindinput="onSearch"
+      confirm-type="search"
+    />
+    <text class="search-clear" wx:if="{{query}}" bindtap="onClearSearch">✕</text>
+  </view>
+  <text class="search-meta" wx:if="{{query}}">找到 {{resultCount}} 条</text>
+  <view class="search-hint" wx:if="{{hint}}">
+    <text class="hint-t">{{hint}}，去「最爱榜」翻翻。</text>
+  </view>
+
+  <scroll-view class="tabs" scroll-x="true">
+    <view
+      class="tab {{tierFilter === item.k ? 'on' : ''}}"
+      wx:for="{{tierTabs}}" wx:key="k"
+      data-k="{{item.k}}" bindtap="onTierTab"
+    >{{item.t}}</view>
+  </scroll-view>
+
+  <scroll-view class="tabs tabs2" scroll-x="true">
+    <view
+      class="tab sub {{delivFilter === item.k ? 'on' : ''}}"
+      wx:for="{{delivTabs}}" wx:key="k"
+      data-k="{{item.k}}" bindtap="onDelivTab"
+    >{{item.t}}</view>
+  </scroll-view>
+
+  <view class="list">
+
+    <view class="card {{item.dead ? 'dead' : ''}}" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpen">
+      <view class="accent {{item.tierKey}}"></view>
+
+      <view class="c-top">
+        <text class="c-name">{{item.name}}</text>
+        <text class="tier {{item.tierKey}}">{{item.tierText}}</text>
+      </view>
+
+      <view class="c-sub">
+        <text class="c-provider">{{item.provider}}</text>
+        <text class="deliv {{item.delivKey}}">{{item.delivText}}</text>
+      </view>
+      <text class="c-quota">{{item.quota}}</text>
+
+      <view class="c-kv">
+        <text class="c-k">门槛</text>
+        <text class="c-gtag">{{item.gateTag}}</text>
+        <text class="c-v">{{item.gate}}</text>
+      </view>
+      <view class="c-kv">
+        <text class="c-k">期限</text>
+        <text class="c-v">{{item.term}}</text>
+        <text class="conf {{item.confCls}}">{{item.conf}}</text>
+      </view>
+
+      <view class="paid" wx:if="{{item.paid}}">
+        <text class="paid-tag">伪免费</text>
+        <text class="paid-note">要先买会员才拿得到</text>
+      </view>
+
+      <view class="vote">
+        <view
+          class="vbtn {{item.myVote === 0 ? 'on spit' : ''}} {{item.dead ? 'off' : ''}}"
+          data-id="{{item.id}}" data-idx="0" catchtap="onVote"
+        >小杯作者</view>
+        <view
+          class="vbtn {{item.myVote === 1 ? 'on mid' : ''}} {{item.dead ? 'off' : ''}}"
+          data-id="{{item.id}}" data-idx="1" catchtap="onVote"
+        >中杯</view>
+        <view
+          class="vbtn {{item.myVote === 2 ? 'on big' : ''}} {{item.dead ? 'off' : ''}}"
+          data-id="{{item.id}}" data-idx="2" catchtap="onVote"
+        >大杯</view>
+        <view
+          class="vbtn {{item.myVote === 3 ? 'on xl' : ''}} {{item.dead ? 'off' : ''}}"
+          data-id="{{item.id}}" data-idx="3" catchtap="onVote"
+        >超大杯</view>
+      </view>
+
+      <view class="tally">
+        <view class="tb tm" style="width:{{item.bar0}}%"></view>
+        <view class="tb tbg" style="width:{{item.bar1}}%"></view>
+        <view class="tb tx" style="width:{{item.bar2}}%"></view>
+        <view class="tb tv" style="width:{{item.bar3}}%"></view>
+      </view>
+
+      <view class="c-foot">
+        <text class="c-people" wx:if="{{item.people}}">{{item.people}} 人评 · 均分 {{item.scoreText}}</text>
+        <text class="c-people" wx:elif="{{item.dead}}">不参与排名</text>
+        <text class="c-people" wx:else>还没有人评</text>
+        <text class="c-act" wx:if="{{item.copy && !item.dead}}" data-copy="{{item.copy}}" catchtap="onCopy">{{item.copyLabel}}</text>
+      </view>
+
+    </view>
+
+    <view class="empty" wx:if="{{list.length === 0}}">
+      <text class="empty-t">这个筛选下暂时没有条目</text>
+      <text class="empty-s">换个档位或类型看看</text>
+    </view>
+
+  </view>
+
+  <view class="foot">
+    <text class="foot-t">档位取「票数过半」的那一档，没过半标「分歧」。幻神由超大杯里占比最高的一条独占，伪免费不参选，已结束的退出排名。</text>
+    <view class="reset" bindtap="onReset">清空我的投票</view>
+  </view>
+
+</view>

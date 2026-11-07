@@ -1,0 +1,255 @@
+.page {
+  padding: 28rpx 26rpx 60rpx;
+}
+
+.hd {
+  display: flex;
+  flex-direction: column;
+  padding: 4rpx 0 22rpx;
+}
+
+.h1 {
+  font-size: 42rpx;
+  font-size: calc(42rpx * var(--fs, 1));
+  font-weight: 700;
+  letter-spacing: -1rpx;
+}
+
+.hd-sub {
+  margin-top: 6rpx;
+  color: #8a8a84;
+  font-size: 22rpx;
+  font-size: calc(22rpx * var(--fs, 1));
+}
+
+.hd-sub2 {
+  margin-top: 4rpx;
+  color: #b4b0a6;
+  font-size: 20rpx;
+  font-size: calc(20rpx * var(--fs, 1));
+}
+
+/* 周榜 / 月榜 */
+.tabs {
+  display: flex;
+  margin-bottom: 18rpx;
+}
+
+.tab {
+  margin-right: 12rpx;
+  padding: 11rpx 30rpx;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 40rpx;
+  background: #ffffff;
+  color: #4a4a46;
+  font-size: 23rpx;
+  font-size: calc(23rpx * var(--fs, 1));
+}
+
+.tab.on {
+  background: #1c1c1a;
+  border-color: #1c1c1a;
+  color: #ffffff;
+}
+
+/* 人气王 */
+.king {
+  padding: 30rpx 30rpx 32rpx;
+  border-radius: 26rpx;
+  background: #1c1c1a;
+}
+
+.king.empty {
+  justify-content: center;
+  padding: 42rpx 28rpx;
+  background: #e9e7e0;
+}
+
+.king-empty {
+  color: #8a867c;
+  font-size: 22rpx;
+  font-size: calc(22rpx * var(--fs, 1));
+}
+
+.king-info {
+  flex: 1;
+}
+
+.king-lab {
+  display: block;
+  color: #c99a3f;
+  font-size: 18rpx;
+  font-size: calc(18rpx * var(--fs, 1));
+  letter-spacing: 4rpx;
+}
+
+.king-name {
+  display: block;
+  margin-top: 8rpx;
+  color: #ffffff;
+  font-size: 36rpx;
+  font-size: calc(36rpx * var(--fs, 1));
+  font-weight: 700;
+}
+
+.king-tag {
+  display: block;
+  margin-top: 6rpx;
+  color: #8f8b81;
+  font-size: 20rpx;
+  font-size: calc(20rpx * var(--fs, 1));
+}
+
+/* 列表 */
+.list {
+  margin-top: 18rpx;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14rpx;
+  padding: 20rpx 22rpx;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 24rpx;
+  background: #ffffff;
+}
+
+.row.on {
+  border-color: #e0cfa8;
+  background: #fffdf7;
+}
+
+.row-mid {
+  flex: 1;
+  overflow: hidden;
+}
+
+.row-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.row-name {
+  font-size: 26rpx;
+  font-size: calc(26rpx * var(--fs, 1));
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.2rpx;
+}
+
+.new-tag {
+  margin-left: 8rpx;
+  padding: 1rpx 8rpx;
+  border-radius: 5rpx;
+  background: #fbf1df;
+  color: #a8781f;
+  font-size: 16rpx;
+  font-size: calc(16rpx * var(--fs, 1));
+  font-weight: 600;
+}
+
+.row-sub {
+  display: flex;
+  align-items: center;
+  margin-top: 5rpx;
+  flex-wrap: wrap;
+}
+
+.row-tag {
+  margin-right: 10rpx;
+  padding: 1rpx 8rpx;
+  border-radius: 5rpx;
+  background: #f4f3ee;
+  color: #8a8a84;
+  font-size: 17rpx;
+  font-size: calc(17rpx * var(--fs, 1));
+}
+
+.row-meta {
+  color: #b4b0a6;
+  font-size: 18rpx;
+  font-size: calc(18rpx * var(--fs, 1));
+  line-height: 1.5;
+}
+
+.free-tag {
+  margin-left: 8rpx;
+  padding: 1rpx 8rpx;
+  border-radius: 5rpx;
+  background: #e8f4ef;
+  color: #0f6e56;
+  font-size: 17rpx;
+  font-size: calc(17rpx * var(--fs, 1));
+}
+
+.king-quote {
+  display: block;
+  margin-top: 6rpx;
+  color: #6f6b62;
+  font-size: 19rpx;
+  font-size: calc(19rpx * var(--fs, 1));
+}
+
+.row-right {
+  flex: none;
+  width: 104rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.row-vote {
+  color: #cdc9bf;
+  font-size: 26rpx;
+  font-size: calc(26rpx * var(--fs, 1));
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.row-vote.has {
+  color: #1c1c1a;
+}
+
+.pick {
+  margin-top: 8rpx;
+  padding: 7rpx 18rpx;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 40rpx;
+  background: #fbfaf7;
+  color: #4a4a46;
+  font-size: 20rpx;
+  font-size: calc(20rpx * var(--fs, 1));
+}
+
+.pick.on {
+  background: #1c1c1a;
+  border-color: #1c1c1a;
+  color: #ffffff;
+}
+
+/* 底部 */
+.foot {
+  margin-top: 22rpx;
+  padding: 0 4rpx;
+}
+
+.foot-t {
+  display: block;
+  color: #a8a49a;
+  font-size: 19rpx;
+  font-size: calc(19rpx * var(--fs, 1));
+  line-height: 1.7;
+}
+
+.reset {
+  margin-top: 20rpx;
+  padding: 16rpx 0;
+  border: 2rpx solid #e6e4dd;
+  border-radius: 16rpx;
+  color: #8a8a84;
+  font-size: 22rpx;
+  font-size: calc(22rpx * var(--fs, 1));
+  text-align: center;
+}

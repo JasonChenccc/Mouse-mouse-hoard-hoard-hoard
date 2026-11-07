@@ -1,0 +1,16 @@
+# 依赖
+node_modules/
+miniprogram_npm/
+
+# 构建产物
+_cache/
+*.log
+
+# 临时数据（抓取中间产物）
+or_all.json
+*.bak
+*.bak.js
+
+# 系统文件
+.DS_Store
+Thumbs.db

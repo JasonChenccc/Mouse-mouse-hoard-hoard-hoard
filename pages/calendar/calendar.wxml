@@ -1,0 +1,94 @@
+<view class="page {{fontClass}}">
+
+  <view class="hd">
+    <text class="h1">日历</text>
+    <text class="hd-sub">额度哪天到期，一眼看到</text>
+  </view>
+
+  <view class="cal">
+    <view class="cal-top">
+      <view class="cal-nav" bindtap="onPrev">‹</view>
+      <text class="cal-month">{{monthLabel}}</text>
+      <view class="cal-nav" bindtap="onNext">›</view>
+      <view class="cal-today" bindtap="onToday">今天</view>
+    </view>
+
+    <view class="cal-week">
+      <text class="wk" wx:for="{{week}}" wx:key="*this">{{item}}</text>
+    </view>
+
+    <view class="cal-grid">
+      <view
+        class="cell {{item.has ? 'has' : ''}} {{item.today ? 'today' : ''}} {{item.sel ? 'sel' : ''}}"
+        wx:for="{{cells}}" wx:key="idx"
+        data-key="{{item.key}}" bindtap="onPickDay"
+      >
+        <text class="cell-n">{{item.n}}</text>
+        <view class="dot" wx:if="{{item.has}}"></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="day">
+    <view class="day-head">
+      <text class="day-t">{{selectedLabel}}</text>
+      <text class="day-c">{{dayItems.length}} 条到期</text>
+    </view>
+    <view class="day-item" wx:for="{{dayItems}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpen">
+      <text class="di-name">{{item.name}}</text>
+      <text class="di-sub">{{item.provider}} · {{item.term}}</text>
+    </view>
+    <text class="day-empty" wx:if="{{dayItems.length === 0}}">这天没有条目到期</text>
+  </view>
+
+  <view class="up" wx:if="{{upcoming.length}}">
+    <text class="up-t">未来 30 天到期</text>
+    <view class="up-item" wx:for="{{upcoming}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpen">
+      <text class="up-name">{{item.name}}</text>
+      <text class="up-left">{{item.leftText}}</text>
+    </view>
+  </view>
+
+  <text class="undated" wx:if="{{undatedCount}}">另外 {{undatedCount}} 条在架的没写截止日期——「限时免费」这类官方不给日期的，日历上标不出来，只能靠天梯里的核实状态判断。</text>
+
+  <view class="pomo">
+
+    <view class="task" wx:if="{{taskText}}">
+      <text class="task-t">{{taskText}}</text>
+    </view>
+
+    <view class="bubble">{{bubble}}</view>
+
+    <view class="stage" bindtap="onTapPet" bindlongpress="onLongPressPet">
+      <image class="pet-gif" src="{{petSrc}}" mode="aspectFit" binderror="onPetError"></image>
+    </view>
+
+    <view class="pet-row">
+      <text class="pet-name">{{pet.name}}</text>
+      <text class="pet-state">{{petState === 'focus' ? '专注中' : (petState === 'click' ? '回应你' : '待机')}}</text>
+      <text class="pet-switch">长按有菜单</text>
+    </view>
+
+    <text class="time">{{timeText}}</text>
+
+    <view class="bar"><view class="bar-in" style="width:{{progress}}%"></view></view>
+
+    <view class="presets">
+      <view
+        class="pre {{minutes === item && !custom ? 'on' : ''}}"
+        wx:for="{{presets}}" wx:key="*this"
+        data-min="{{item}}" bindtap="onPreset"
+      >{{item}} 分</view>
+      <view class="pre {{custom ? 'on' : ''}}" bindtap="onCustom">{{custom ? customMin + ' 分' : '自定义'}}</view>
+    </view>
+
+    <view class="ctrl">
+      <view class="btn ghost" bindtap="onReset">重置</view>
+      <view class="btn main" bindtap="onToggle">{{running ? '暂停' : '开始专注'}}</view>
+    </view>
+
+    <text class="attr">{{attribution}}</text>
+
+  </view>
+
+</view>

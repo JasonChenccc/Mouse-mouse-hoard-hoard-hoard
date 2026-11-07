@@ -1,0 +1,43 @@
+<view class="page {{fontClass}}">
+
+  <view class="hd">
+    <text class="h1">我的影响</text>
+    <text class="hd-sub">你在这台设备上投过的票</text>
+  </view>
+
+  <view class="stats">
+    <view class="stat">
+      <text class="stat-n">{{total}}</text>
+      <text class="stat-l">总记录</text>
+    </view>
+    <view class="stat">
+      <text class="stat-n">{{tierCount}}</text>
+      <text class="stat-l">评级</text>
+    </view>
+    <view class="stat">
+      <text class="stat-n">{{favCount}}</text>
+      <text class="stat-l">最爱票</text>
+    </view>
+    <view class="stat">
+      <text class="stat-n">{{itemCount}}</text>
+      <text class="stat-l">涉及条目</text>
+    </view>
+  </view>
+
+  <view class="list">
+    <view class="item" wx:for="{{list}}" wx:key="key">
+      <view class="item-l">
+        <text class="item-name">{{item.name}}</text>
+        <text class="item-sub">{{item.time}} · {{item.typeText}}</text>
+      </view>
+      <text class="item-v {{item.tone}}">{{item.value}}</text>
+    </view>
+    <text class="empty" wx:if="{{list.length === 0}}">还没有投过票。去天梯或最爱榜投一票，这里就会记下来。</text>
+  </view>
+
+  <view class="foot">
+    <text class="foot-t">标「早期记录」的是升级前投的票，当时没有记时间。清空这里不会撤销你已经投出的票。</text>
+    <view class="reset" bindtap="onClear">清空影响记录</view>
+  </view>
+
+</view>

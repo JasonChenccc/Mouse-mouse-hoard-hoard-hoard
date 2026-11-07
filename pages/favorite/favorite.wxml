@@ -1,0 +1,56 @@
+<view class="page {{fontClass}}">
+
+  <view class="hd">
+    <text class="h1">最爱榜</text>
+    <text class="hd-sub">{{period}} · 共 {{totalModels}} 个模型，新模型发布即上榜</text>
+  </view>
+
+  <view class="tabs">
+    <view class="tab {{board === 'week' ? 'on' : ''}}" data-k="week" bindtap="onBoard">周榜</view>
+    <view class="tab {{board === 'month' ? 'on' : ''}}" data-k="month" bindtap="onBoard">月榜</view>
+  </view>
+
+  <view class="king" wx:if="{{top}}">
+    <view class="king-info">
+      <text class="king-lab">{{board === 'week' ? '本周人气王' : '本月人气王'}}</text>
+      <text class="king-name">{{top.name}}</text>
+      <text class="king-tag">{{top.persona.tag}} · {{top.votes}} 票</text>
+      <text class="king-quote">{{top.meta}}</text>
+    </view>
+  </view>
+
+  <view class="king empty" wx:else>
+    <text class="king-empty">{{board === 'week' ? '本周还没有人投票，点下面任意一个开始。' : '本月还没有人投票。'}}</text>
+  </view>
+
+  <view class="list">
+    <view class="row {{item.voted ? 'on' : ''}}" wx:for="{{list}}" wx:key="id">
+
+      <view class="row-mid">
+        <view class="row-head">
+          <text class="row-name">{{item.name}}</text>
+          <text class="new-tag" wx:if="{{item.isNew}}">NEW</text>
+          <text class="free-tag" wx:if="{{item.free}}">免费</text>
+        </view>
+        <view class="row-sub">
+          <text class="row-tag">{{item.persona.tag}}</text>
+          <text class="row-meta">{{item.meta}}</text>
+        </view>
+      </view>
+
+      <view class="row-right">
+        <text class="row-vote {{item.votes ? 'has' : ''}}">{{item.votes}}</text>
+        <view class="pick {{item.voted ? 'on' : ''}}" data-id="{{item.id}}" data-name="{{item.name}}" bindtap="onPick">
+          {{item.voted ? '已投' : '投票'}}
+        </view>
+      </view>
+
+    </view>
+  </view>
+
+  <view class="foot">
+    <text class="foot-t">周榜按本周一的零点起算，月榜按每月 1 号起算，到时间自然归零。票数现在存在本机，没有联网；接上后端之后才是「大家的最爱」。付费模型价格取自 OpenRouter，单位美元 / 百万 tokens。</text>
+    <view class="reset" bindtap="onReset">清空我的票</view>
+  </view>
+
+</view>

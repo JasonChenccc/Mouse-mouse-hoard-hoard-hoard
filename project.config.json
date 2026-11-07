@@ -1,0 +1,33 @@
+{
+  "description": "每日token大赛 · 免费额度天梯",
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "folder",
+        "value": ".workbuddy"
+      },
+      {
+        "type": "folder",
+        "value": "node_modules"
+      },
+      {
+        "type": "folder",
+        "value": "scripts"
+      }
+    ],
+    "include": []
+  },
+  "setting": {
+    "bundle": false,
+    "es6": true,
+    "minified": true,
+    "postcss": true,
+    "urlCheck": true,
+    "packNpmManually": false,
+    "nodeModules": true
+  },
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "projectname": "egg-ladder",
+  "miniprogramRoot": "./"
+}

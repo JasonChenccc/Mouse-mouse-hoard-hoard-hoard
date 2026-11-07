@@ -1,0 +1,73 @@
+<view class="page {{fontClass}}">
+
+  <block wx:if="{{o}}">
+
+    <view class="hd">
+      <view class="hd-top">
+        <text class="h1">{{o.name}}</text>
+        <text class="tier {{o.tierKey}}">{{o.tierText}}</text>
+      </view>
+      <view class="hd-tags">
+        <text class="c-provider">{{o.provider}}</text>
+        <text class="deliv {{o.delivKey}}">{{o.deliv}}</text>
+        <text class="conf {{o.confCls}}">{{o.conf}}</text>
+      </view>
+    </view>
+
+    <view class="paid" wx:if="{{o.paid}}">
+      <text class="paid-tag">伪免费</text>
+      <text class="paid-note">要先买会员才拿得到，不是真免费</text>
+    </view>
+
+    <view class="block">
+      <text class="block-lab">能拿到什么</text>
+      <text class="block-txt">{{o.quota}}</text>
+    </view>
+
+    <view class="block">
+      <text class="block-lab">免费覆盖范围</text>
+      <text class="block-txt">{{o.scope}}</text>
+    </view>
+
+    <view class="rows">
+      <view class="row">
+        <text class="row-k">领取条件</text>
+        <view class="row-v-wrap">
+          <text class="gtag">{{o.gateTag}}</text>
+          <text class="row-v">{{o.gate}}</text>
+        </view>
+      </view>
+      <view class="row">
+        <text class="row-k">有效期</text>
+        <text class="row-v">{{o.term}}</text>
+      </view>
+      <view class="row">
+        <text class="row-k">国内可用</text>
+        <text class="row-v">{{o.dom}}</text>
+      </view>
+      <view class="row">
+        <text class="row-k">当前评级</text>
+        <text class="row-v">{{o.people}} 人评 · {{o.tierText}}</text>
+      </view>
+    </view>
+
+    <view class="entry" wx:if="{{o.dead}}">
+      <text class="entry-lab">已结束</text>
+      <text class="entry-url">这条活动已经截止，入口不再提供。</text>
+    </view>
+
+    <view class="entry" wx:elif="{{o.copy}}">
+      <text class="entry-lab">领取入口</text>
+      <text class="entry-url">{{o.copy}}</text>
+      <view class="entry-btn" bindtap="onCopy">{{o.copyLabel}}</view>
+    </view>
+
+    <view class="note">
+      <text class="note-t">国内可用性按厂商与站点归属判断，没有逐个实测；标「未确认」的，请自己点一下入口再决定。</text>
+    </view>
+
+  </block>
+
+  <text class="empty" wx:else>没找到这条，可能已经被移除了。</text>
+
+</view>

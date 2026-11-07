@@ -1,0 +1,27 @@
+page {
+  min-height: 100%;
+  background: #f4f3ef;
+  color: #1c1c1a;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+  font-size: 28rpx;
+  font-size: calc(28rpx * var(--fs, 1));
+  line-height: 1.6;
+}
+
+view,
+text {
+  box-sizing: border-box;
+}
+
+/* 字号缩放：改 --fs 一处，全页文字跟着变。var 不支持时回退到上面写死的 rpx。 */
+.page {
+  --fs: 1;
+}
+
+.fs-s {
+  --fs: 0.88;
+}
+
+.fs-l {
+  --fs: 1.16;
+}

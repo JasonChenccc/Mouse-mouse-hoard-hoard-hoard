@@ -1,0 +1,31 @@
+// 模型发布日期，取自 OpenRouter /api/v1/models 的 created 字段（2026-11-06 拉取）。
+// 用来判断「新模型」，发布 30 天内打 NEW 标。
+module.exports = {
+  'nvidia/nemotron-3-ultra-550b-a55b:free': '2026-06-04',
+  'nvidia/nemotron-3.5-super-vl:free': '2026-10-15',
+  'nvidia/nemotron-3.5-lightning:free': '2026-08-11',
+  'stealth/crouton-alpha': '2026-11-03',
+  'google/gemma-4-31b-it:free': '2026-04-02',
+  'google/gemma-4-26b-a4b-it:free': '2026-04-03',
+  'dots-studio/dots-3-note-preview:free': '2026-08-14',
+  'recursive/flint-v1.0:free': '2026-10-21',
+  'xingchen-agi/xing4.0-29b-a4b:free': '2026-10-16',
+  'cohere/north-mini-code:free': '2026-06-17',
+  'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free': '2026-04-28',
+  'liquid/lfm-2.5-2.6b:free': '2026-08-11',
+  'nvidia/nemotron-3.5-content-safety:free': '2026-06-04',
+  'google/lyria-3-pro-preview': '2026-03-30',
+  'openrouter/free': '2026-02-01',
+  'anthropic/claude-opus-5.5': '2026-09-22',
+  'openai/gpt-5.6-luna-pro': '2026-07-09',
+  'google/gemini-4-argon': '2026-10-13',
+  'deepseek/deepseek-v4.1-flash': '2026-09-10',
+  'qwen/qwen3.8-max-prime': '2026-09-23',
+  'moonshotai/kimi-k3.1-pro': '2026-10-23',
+  'z-ai/glm-5.3-prime': '2026-09-23',
+  'x-ai/grok-4.7': '2026-09-21',
+  'xiaomi/mimo-v2.6-pro': '2026-09-21',
+  'mistralai/mistral-large-4-0': '2026-10-06',
+  'meta-llama/llama-4-maverick': '2025-04-05',
+  'anthropic/claude-sonnet-5.5': '2026-09-28'
+};

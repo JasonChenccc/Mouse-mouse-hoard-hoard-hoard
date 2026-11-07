@@ -1,0 +1,68 @@
+<view class="page {{fontClass}}">
+
+  <view class="hd">
+    <text class="h1">我的</text>
+    <text class="hd-sub">本机设置与记录 · 不上传</text>
+  </view>
+
+  <view class="card">
+    <text class="card-t">云同步</text>
+    <view class="row">
+      <text class="row-k">状态</text>
+      <text class="row-v {{online ? '' : 'empty'}}">{{online ? '已登录，投票会跨设备同步' : '未登录，投票只存本机'}}</text>
+    </view>
+    <view class="login-btn" wx:if="{{!online}}" bindtap="onLogin">{{logging ? '登录中…' : '微信登录'}}</view>
+    <text class="row-note">登录只用于区分你的投票，不读取头像和昵称。</text>
+  </view>
+
+  <view class="card">
+    <text class="card-t">我的设置</text>
+
+    <view class="row" bindtap="onEditId">
+      <text class="row-k">我的 ID</text>
+      <text class="row-v {{myId ? '' : 'empty'}}">{{myId ? myId : '未设置，点这里填写'}}</text>
+      <text class="arrow">›</text>
+    </view>
+    <text class="row-note">只存一个名字，不涉及头像。</text>
+
+    <view class="sep"></view>
+
+    <view class="fs-row">
+      <text class="row-k">字号</text>
+      <view class="fs-btn {{fontClass === 'fs-s' ? 'on' : ''}}" data-v="fs-s" bindtap="onFont">小</view>
+      <view class="fs-btn {{fontClass === '' ? 'on' : ''}}" data-v="" bindtap="onFont">标准</view>
+      <view class="fs-btn {{fontClass === 'fs-l' ? 'on' : ''}}" data-v="fs-l" bindtap="onFont">大</view>
+    </view>
+    <text class="row-note">切换后所有页面一起生效。</text>
+  </view>
+
+  <view class="entry" bindtap="onImpact">
+    <view class="entry-l">
+      <text class="entry-t">我的影响</text>
+      <text class="entry-s">看看以前投过的票 · 共 {{historyCount}} 条记录</text>
+    </view>
+    <text class="arrow">›</text>
+  </view>
+
+  <view class="card fb">
+    <text class="card-t">问题反馈</text>
+    <view class="row" data-copy="1024936811" bindtap="onCopy">
+      <text class="row-k">QQ</text>
+      <text class="row-v">1024936811</text>
+      <text class="tap">复制</text>
+    </view>
+    <view class="row" data-copy="arteon@agent.qq.com" bindtap="onCopy">
+      <text class="row-k">邮箱</text>
+      <text class="row-v">arteon@agent.qq.com</text>
+      <text class="tap">复制</text>
+    </view>
+    <text class="row-note">数据有误、渠道失效、想加新条目，都发这里。</text>
+  </view>
+
+  <view class="meta">
+    <text class="meta-t">数据更新于 {{fetchedAt}}（北京时间）</text>
+    <text class="meta-t">共 {{totalOffers}} 条 · 来源 {{sources}}</text>
+    <text class="meta-t">投票和设置都只存在这台设备上，没有联网。</text>
+  </view>
+
+</view>
