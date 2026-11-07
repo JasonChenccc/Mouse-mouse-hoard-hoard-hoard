@@ -1,5 +1,5 @@
 {
-  "description": "每日token大赛 · 免费额度天梯",
+  "description": "仓鼠囤粮 · 免费 AI 资源天梯",
   "packOptions": {
     "ignore": [
       {
@@ -13,6 +13,22 @@
       {
         "type": "folder",
         "value": "scripts"
+      },
+      {
+        "type": "file",
+        "value": "package-lock.json"
+      },
+      {
+        "type": "file",
+        "value": "package.json"
+      },
+      {
+        "type": "file",
+        "value": ".gitignore"
+      },
+      {
+        "type": "file",
+        "value": ".wbapp_r68wPNDXdc6LVrOths0ghs.privacy.json"
       }
     ],
     "include": []
@@ -23,11 +39,17 @@
     "minified": true,
     "postcss": true,
     "urlCheck": true,
-    "packNpmManually": false,
-    "nodeModules": true
+    "packNpmManually": true,
+    "packNpmRelationList": [
+      {
+        "packageJsonPath": "./package.json",
+        "miniprogramNpmDistDir": "./"
+      }
+    ],
+    "nodeModules": false
   },
   "compileType": "miniprogram",
-  "appid": "touristappid",
-  "projectname": "egg-ladder",
+  "appid": "wx0dd88c155c0eb962",
+  "projectname": "仓鼠囤粮",
   "miniprogramRoot": "./"
 }

@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "@tencent-ai/workbuddy-cloud-sdk": "^0.1.4-dev.ca27990.202610161713"
+  },
+  "devDependencies": {
+    "miniprogram-ci": "^2.1.31"
   }
 }
