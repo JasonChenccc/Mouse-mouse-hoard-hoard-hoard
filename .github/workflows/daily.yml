@@ -7,6 +7,11 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
+# 必须显式给写权限：2023 年后新仓库的 GITHUB_TOKEN 默认只读，
+# 缺了这段 git push 会直接 exit 128
+permissions:
+  contents: write
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -46,7 +51,8 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "自动更新数据 $(date -u '+%Y-%m-%d %H:%M UTC')"
-            git push
+            # checkout 后是 detached HEAD，必须显式指定目标分支
+            git push origin HEAD:main
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
