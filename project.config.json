@@ -33,6 +33,14 @@
       {
         "type": "file",
         "value": "data/offers.json"
+      },
+      {
+        "type": "folder",
+        "value": ".github"
+      },
+      {
+        "type": "folder",
+        "value": ".git"
       }
     ],
     "include": []
