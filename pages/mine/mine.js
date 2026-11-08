@@ -33,13 +33,26 @@ Page({
         online: repo.isOnline(),
         historyCount: repo.getHistory().length
       });
-      wx.showToast({
-        title: r.ok ? '已登录，开始同步' : (r.message || '登录失败'),
-        icon: 'none'
+      if (r.ok) {
+        wx.showToast({ title: '已登录，开始同步', icon: 'none' });
+        return;
+      }
+      // 失败原因用弹窗展示：toast 只有 1.5 秒，来不及看清，
+      // 而这条信息决定了下一步该去改什么配置
+      wx.showModal({
+        title: '登录失败',
+        content: r.message || '未知原因，稍后再试一次',
+        showCancel: false,
+        confirmText: '知道了'
       });
-    }).catch(function () {
+    }).catch(function (e) {
       self.setData({ logging: false });
-      wx.showToast({ title: '登录失败，请重试', icon: 'none' });
+      wx.showModal({
+        title: '登录失败',
+        content: (e && e.message) || '网络异常，稍后再试',
+        showCancel: false,
+        confirmText: '知道了'
+      });
     });
   },
 

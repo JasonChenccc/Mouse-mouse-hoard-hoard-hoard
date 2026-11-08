@@ -388,7 +388,10 @@ Page({
       confirmColor: '#1c1c1a',
       success: function (res) {
         if (!res.confirm) return;
-        self.commitVote(id, idx);
+        // 确认之后再要求登录：未登录的票进不了全站榜，也挡不住刷票
+        repo.requireLogin().then(function (ok) {
+          if (ok) self.commitVote(id, idx);
+        });
       }
     });
   },

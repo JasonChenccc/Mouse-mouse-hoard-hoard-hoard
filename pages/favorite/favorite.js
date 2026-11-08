@@ -196,16 +196,25 @@ Page({
     const id = String(ds.id);
     const name = ds.name || id;
     const self = this;
-    // 投票 / 撤回的判定和记录都在 repo 里，页面只管反馈
-    repo.toggleFav(id, name).then(function (r) {
-      if (r.voted && typeof wx.vibrateShort === 'function') {
-        wx.vibrateShort({ type: 'light', fail: function () {} });
-      }
-      // 云端写完后再拉一次全站票数，榜单立刻反映这一票
-      return self.syncRank().then(function () {
-        return r;
+
+    // 撤回本机已有的一票不需要登录；新投一票才要求登录
+    const already = repo.hasFav(id);
+    const gate = already ? Promise.resolve(true) : repo.requireLogin();
+
+    gate.then(function (ok) {
+      if (!ok) return null;
+      // 投票 / 撤回的判定和记录都在 repo 里，页面只管反馈
+      return repo.toggleFav(id, name).then(function (r) {
+        if (r.voted && typeof wx.vibrateShort === 'function') {
+          wx.vibrateShort({ type: 'light', fail: function () {} });
+        }
+        // 云端写完后再拉一次全站票数，榜单立刻反映这一票
+        return self.syncRank().then(function () {
+          return r;
+        });
       });
     }).then(function (r) {
+      if (!r) return;
       self.refresh();
       wx.showToast({ title: r.voted ? '已投一票' : '已撤回', icon: 'none' });
     }).catch(function () {

@@ -379,6 +379,51 @@ function login() {
   });
 }
 
+// 投票/收藏这类会进全站统计的动作，必须先登录：
+// 未登录时没有 auth.uid()，写库会被 RLS 拒绝，票只留在本机，
+// 也挡不住恶意刷票。返回 Promise<boolean> 表示是否可以继续。
+function requireLogin() {
+  if (online) return Promise.resolve(true);
+  if (typeof wx === 'undefined' || !wx.showModal) return Promise.resolve(false);
+
+  return new Promise(function (resolve) {
+    wx.showModal({
+      title: '需要先登录',
+      content: '投票会计入全站榜单，需要先登录确认是你投的，防止刷票。',
+      confirmText: '微信登录',
+      cancelText: '算了',
+      confirmColor: '#1c1c1a',
+      success: function (res) {
+        if (!res.confirm) {
+          resolve(false);
+          return;
+        }
+        wx.showLoading({ title: '登录中', mask: true });
+        login().then(function (r) {
+          wx.hideLoading();
+          if (r && r.ok) {
+            wx.showToast({ title: '登录成功', icon: 'none' });
+            resolve(true);
+          } else {
+            wx.showModal({
+              title: '登录失败',
+              content: (r && r.message) || '稍后再试一次',
+              showCancel: false
+            });
+            resolve(false);
+          }
+        }).catch(function () {
+          wx.hideLoading();
+          resolve(false);
+        });
+      },
+      fail: function () {
+        resolve(false);
+      }
+    });
+  });
+}
+
 // 写云端时不阻塞本地：失败只记录，不回滚
 function pushQuietly(promise) {
   if (!online) return;
@@ -424,6 +469,7 @@ module.exports = {
   getFavAggregates: getFavAggregates,
   refreshFavAggregates: refreshFavAggregates,
   login: login,
+  requireLogin: requireLogin,
   restoreSession: restoreSession,
   isOnline: isOnline,
   TIER_NAMES: TIER_NAMES,
