@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "鼠鼠囤积分",
-  "usingComponents": {}
+  "usingComponents": {},
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
 }

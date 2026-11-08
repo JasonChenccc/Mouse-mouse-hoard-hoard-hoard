@@ -122,6 +122,31 @@ Page({
     this.stopTicker();
   },
 
+  // 下拉刷新：重拉内容 + 全站票数。
+  // 15 秒节流——防止连续下拉把接口打爆，也别浪费用户流量。
+  onPullDownRefresh: function () {
+    const self = this;
+    const now = Date.now();
+    const wait = 15000;
+
+    if (now - (this.lastPullAt || 0) < wait) {
+      wx.stopPullDownRefresh();
+      wx.showToast({ title: '刚刷过，' + Math.ceil((wait - (now - this.lastPullAt)) / 1000) + ' 秒后再试', icon: 'none' });
+      return;
+    }
+    this.lastPullAt = now;
+
+    Promise.all([repo.bootstrap(), repo.refreshAggregates()]).then(function (res) {
+      self.refresh();
+      self.tick();
+      wx.stopPullDownRefresh();
+      wx.showToast({ title: res[1] ? '票数已更新' : '已是最新', icon: 'none' });
+    }).catch(function () {
+      wx.stopPullDownRefresh();
+      wx.showToast({ title: '刷新失败，稍后再试', icon: 'none' });
+    });
+  },
+
   // 具体时刻 + 会自己往前走的相对时间，每 30 秒重算
   tick: function () {
     const s = clock.stamp();

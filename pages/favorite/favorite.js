@@ -73,6 +73,31 @@ Page({
     }).catch(function () {});
   },
 
+  // 下拉刷新：15 秒节流，避免连续下拉打爆接口
+  onPullDownRefresh: function () {
+    const self = this;
+    const now = Date.now();
+    const wait = 15000;
+
+    if (now - (this.lastPullAt || 0) < wait) {
+      wx.stopPullDownRefresh();
+      wx.showToast({ title: '刚刷过，' + Math.ceil((wait - (now - this.lastPullAt)) / 1000) + ' 秒后再试', icon: 'none' });
+      return;
+    }
+    this.lastPullAt = now;
+
+    repo.bootstrap().then(function () {
+      return self.syncRank();
+    }).then(function () {
+      self.refresh();
+      wx.stopPullDownRefresh();
+      wx.showToast({ title: '已刷新', icon: 'none' });
+    }).catch(function () {
+      wx.stopPullDownRefresh();
+      wx.showToast({ title: '刷新失败，稍后再试', icon: 'none' });
+    });
+  },
+
   refresh: function () {
     const log = repo.getFavLog();
     const now = new Date();
@@ -83,16 +108,23 @@ Page({
       ? '本周 ' + fmtMD(since) + ' – ' + fmtMD(endOfWeek(now))
       : now.getFullYear() + ' 年 ' + (now.getMonth() + 1) + ' 月';
 
-    // 票数优先用全站聚合（fav_stats），没拉到才退回本机记录
-    const agg = repo.getFavAggregates();
+    // 票数 = 云端聚合 ∪ 本机记录。
+    // 注意不能写成「有聚合就用聚合」：未登录时 fav_stats 返回空对象 {}，
+    // 空对象也是 truthy，会把本机刚投的票覆盖成 0。
     const tally = {};
-    if (agg) {
-      Object.keys(agg).forEach(function (id) { tally[id] = agg[id]; });
-    } else {
-      log.forEach(function (r) {
-        if (r.ts >= sinceTs) tally[r.id] = (tally[r.id] || 0) + 1;
-      });
-    }
+    const agg = repo.getFavAggregates() || {};
+    Object.keys(agg).forEach(function (id) {
+      tally[id] = agg[id] || 0;
+    });
+
+    const localCount = {};
+    log.forEach(function (r) {
+      if (r.ts >= sinceTs) localCount[r.id] = (localCount[r.id] || 0) + 1;
+    });
+    Object.keys(localCount).forEach(function (id) {
+      // 云端没算上（未登录或还没同步）时，至少显示本机这一票
+      if (!tally[id]) tally[id] = localCount[id];
+    });
 
     // 「我投了哪些」仍取自本机记录，别人的票看不到是谁投的
     const votedIds = {};
