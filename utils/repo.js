@@ -306,12 +306,19 @@ function refreshFavAggregates(sinceTs) {
   });
 }
 
-// 启动时拉一次云端条目。失败就继续用主包里的 54 条，不抛异常。
+// 启动时拉一次内容。三级回退：CDN 静态 JSON → 云端 offers 表 → 主包里的 54 条。
+// 前两级都失败也不抛异常，页面照常用主包数据。
 function bootstrap() {
-  return cloudData.pullOffers().then(function (r) {
-    if (!r.ok) return { ok: false, message: r.message };
-    replaceData({ offers: r.data });
-    return { ok: true, count: r.data.length };
+  return cloudData.pullOffersFromCdn().then(function (cdn) {
+    if (cdn.ok) {
+      replaceData({ offers: cdn.data.offers, fetchedAt: cdn.data.fetchedAt });
+      return { ok: true, count: cdn.data.offers.length, from: 'cdn' };
+    }
+    return cloudData.pullOffers().then(function (cloud) {
+      if (!cloud.ok) return { ok: false, message: cloud.message };
+      replaceData({ offers: cloud.data });
+      return { ok: true, count: cloud.data.length, from: 'cloud' };
+    });
   }).catch(function (e) {
     return { ok: false, message: e && e.message };
   });

@@ -29,6 +29,10 @@
       {
         "type": "file",
         "value": ".wbapp_r68wPNDXdc6LVrOths0ghs.privacy.json"
+      },
+      {
+        "type": "file",
+        "value": "data/offers.json"
       }
     ],
     "include": []

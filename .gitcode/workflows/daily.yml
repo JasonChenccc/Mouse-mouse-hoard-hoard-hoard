@@ -1,0 +1,48 @@
+name: daily-update
+
+# 每天北京时间 08:00 抓一次（GitCode 的 cron 按 UTC 算，0 点 = 北京 8 点）
+# 支持手动触发，方便验证
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 准备 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 准备 Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 抓 cyber-egg 清单，转换成 data/offers-extra.js，并同步 fetchedAt
+      # 脚本内部已带镜像回退（主源不通会自动换 jsDelivr / ghproxy）
+      - name: 抓取并转换
+        run: python scripts/build-extra.py
+
+      # 导出成小程序可直接拉取的静态 JSON，带条数与字段校验
+      # 校验不通过会 exit 1，后面的提交步骤不会执行，线上数据不受影响
+      - name: 导出 JSON
+        run: node scripts/emit-json.js
+
+      # 只有内容真的变了才提交，避免每天生成空提交
+      - name: 提交变更
+        run: |
+          git config user.name "gitcode-actions"
+          git config user.email "actions@gitcode.com"
+          git add data/offers-extra.js data/offers.js data/offers.json
+          if git diff --staged --quiet; then
+            echo "内容无变化，跳过提交"
+          else
+            git commit -m "自动更新数据 $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git push
+          fi

@@ -174,6 +174,38 @@ async function pullActivity() {
   }
 }
 
+// 内容源走静态 JSON：每天由 GitCode 流水线更新，不需要发版。
+// 拉不到就返回 ok:false，调用方继续往下一级回退。
+const CDN_OFFERS = 'https://gitcode.com/yiyiJason/everydaytokens/raw/main/data/offers.json';
+
+function pullOffersFromCdn() {
+  return new Promise(function (resolve) {
+    if (typeof wx === 'undefined' || typeof wx.request !== 'function') {
+      resolve({ ok: false, message: '非小程序环境' });
+      return;
+    }
+    // 按天带版本号，避免 CDN 整天返回同一份旧缓存
+    const d = new Date();
+    const v = '' + d.getFullYear() + (d.getMonth() + 1) + d.getDate();
+    wx.request({
+      url: CDN_OFFERS + '?v=' + v,
+      method: 'GET',
+      timeout: 8000,
+      success: function (res) {
+        const body = res && res.data;
+        if (res.statusCode !== 200 || !body || !Array.isArray(body.offers) || !body.offers.length) {
+          resolve({ ok: false, message: 'CDN 数据无效' });
+          return;
+        }
+        resolve({ ok: true, data: body });
+      },
+      fail: function (e) {
+        resolve({ ok: false, message: (e && e.errMsg) || 'CDN 不可达' });
+      }
+    });
+  });
+}
+
 // 跨用户票数聚合。votes 表本身只让读自己的，这里走 SECURITY DEFINER 函数，
 // 只返回「某条目某档几票」，不带任何人的 openid。
 async function pullVoteStats() {
@@ -205,6 +237,7 @@ async function pullFavStats(sinceTs) {
 
 module.exports = {
   pullOffers: pullOffers,
+  pullOffersFromCdn: pullOffersFromCdn,
   pullVoteStats: pullVoteStats,
   pullFavStats: pullFavStats,
   pushVote: pushVote,
