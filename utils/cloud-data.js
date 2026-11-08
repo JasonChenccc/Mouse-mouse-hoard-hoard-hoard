@@ -183,8 +183,8 @@ async function pullActivity() {
 const b64 = require('./b64.js');
 
 const SOURCE = {
-  kind: 'gitcode-api',
-  url: 'https://api.gitcode.com/api/v5/repos/yiyiJason/everydaytokens/contents/data/offers.json?ref=main'
+  kind: 'raw',
+  url: 'https://fastly.jsdelivr.net/gh/JasonChenccc/Mouse-mouse-hoard-hoard-hoard@main/data/offers.json'
 };
 
 function parseBody(body) {
