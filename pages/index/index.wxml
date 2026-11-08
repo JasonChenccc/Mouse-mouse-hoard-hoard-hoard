@@ -2,7 +2,7 @@
 
   <view class="hd">
     <view class="hd-top">
-      <text class="h1">鼠鼠囤积分</text>
+      <text class="h1">鼠鼠的AI笔记</text>
       <view class="hd-date" bindtap="onShowUpdated">
         <text class="d-main">上次刷新：{{refreshClock}}</text>
         <text class="d-sub">{{freshness}} · 自动同步</text>

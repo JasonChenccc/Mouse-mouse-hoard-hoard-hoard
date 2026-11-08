@@ -2,7 +2,7 @@ const repo = require('./utils/repo.js');
 
 App({
   globalData: {
-    appName: '鼠鼠囤积分',
+    appName: '鼠鼠的AI笔记',
     // 接上云服务后把真实同步时间写进这里，首页右上角会自动跟着更新
     lastSyncAt: '',
     // 云端条目拉取完成时间，页面据此决定是否要重新渲染
