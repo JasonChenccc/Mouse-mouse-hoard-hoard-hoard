@@ -67,7 +67,6 @@ Page({
         dom: DOM[offer.domestic] || '未确认',
         domCls: DOM_CLS[offer.domestic] || 'mid',
         copy: offer.copy,
-        copyLabel: offer.copyLabel,
         paid: !!offer.paid,
         dead: offer.state === 'ended',
         tierText: tierText,

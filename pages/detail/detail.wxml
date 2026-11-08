@@ -59,7 +59,7 @@
     <view class="entry" wx:elif="{{o.copy}}">
       <text class="entry-lab">领取入口</text>
       <text class="entry-url">{{o.copy}}</text>
-      <view class="entry-btn" bindtap="onCopy">{{o.copyLabel}}</view>
+      <view class="entry-btn" bindtap="onCopy">复制链接</view>
     </view>
 
     <view class="note">
