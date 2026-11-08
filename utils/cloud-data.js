@@ -174,70 +174,56 @@ async function pullActivity() {
   }
 }
 
-// 内容源走静态 JSON：每天由 GitCode 流水线更新，不需要发版。
-// 拉不到就返回 ok:false，调用方继续往下一级回退。
-//
-// GitCode 没有匿名可读的 raw 地址（/raw/ 返回的是网页），
-// 但 contents API 可以匿名读，代价是内容被 base64 包了一层，需要解码。
-// 若以后改走 jsDelivr，把 SOURCE 换成 kind:'raw' 即可，取数逻辑不用动。
-const b64 = require('./b64.js');
-
-const SOURCE = {
-  kind: 'raw',
-  url: 'https://fastly.jsdelivr.net/gh/JasonChenccc/Mouse-mouse-hoard-hoard-hoard@main/data/offers.json'
-};
+// 内容源：优先 ghproxy（实时回源，能立刻拿到最新 commit），
+// jsDelivr 兜底（快，但对 @main 有长缓存，可能落后一天）。
+const SOURCES = [
+  'https://ghproxy.net/https://raw.githubusercontent.com/JasonChenccc/Mouse-mouse-hoard-hoard-hoard/main/data/offers.json',
+  'https://fastly.jsdelivr.net/gh/JasonChenccc/Mouse-mouse-hoard-hoard-hoard@main/data/offers.json'
+];
 
 function parseBody(body) {
   if (!body) return null;
-  // contents API：{ encoding: 'base64', content: '...' }
-  if (SOURCE.kind === 'gitcode-api') {
-    if (body.encoding === 'base64' && typeof body.content === 'string') {
-      const text = b64.b64ToUtf8(body.content.replace(/\s/g, ''));
-      if (!text) return null;
-      try { return JSON.parse(text); } catch (e) { return null; }
-    }
-    return null;
+  if (typeof body === 'string') {
+    try { return JSON.parse(body); } catch (e) { return null; }
   }
-  // 直出 JSON 的源（jsDelivr / 自建）
-  return typeof body === 'string' ? JSON.parse(body) : body;
+  return body;
 }
 
-function pullOffersFromCdn() {
+function fetchOne(url) {
   return new Promise(function (resolve) {
-    if (typeof wx === 'undefined' || typeof wx.request !== 'function') {
-      resolve({ ok: false, message: '非小程序环境' });
-      return;
-    }
-    // 按天带版本号，避免 CDN 整天返回同一份旧缓存
-    const d = new Date();
-    const v = '' + d.getFullYear() + (d.getMonth() + 1) + d.getDate();
     wx.request({
-      url: SOURCE.url + '&v=' + v,
+      url: url,
       method: 'GET',
       timeout: 8000,
       header: { Accept: 'application/json' },
       success: function (res) {
-        if (res.statusCode !== 200) {
-          resolve({ ok: false, message: 'CDN HTTP ' + res.statusCode });
+        const d = parseBody(res.data);
+        if (res.statusCode !== 200 || !d || !Array.isArray(d.offers) || !d.offers.length) {
+          resolve({ ok: false });
           return;
         }
-        let body = null;
-        try {
-          body = parseBody(res.data);
-        } catch (e) {
-          body = null;
-        }
-        if (!body || !Array.isArray(body.offers) || !body.offers.length) {
-          resolve({ ok: false, message: 'CDN 数据无效' });
-          return;
-        }
-        resolve({ ok: true, data: body });
+        resolve({ ok: true, data: d });
       },
-      fail: function (e) {
-        resolve({ ok: false, message: (e && e.errMsg) || 'CDN 不可达' });
+      fail: function () {
+        resolve({ ok: false });
       }
     });
   });
+}
+
+// 依次试每个源，第一个拿到的就用
+function pullOffersFromCdn() {
+  if (typeof wx === 'undefined' || typeof wx.request !== 'function') {
+    return Promise.resolve({ ok: false, message: '非小程序环境' });
+  }
+  let i = 0;
+  function next() {
+    if (i >= SOURCES.length) return Promise.resolve({ ok: false, message: '所有内容源不可用' });
+    return fetchOne(SOURCES[i++]).then(function (r) {
+      return r.ok ? r : next();
+    });
+  }
+  return next();
 }
 
 // 跨用户票数聚合。votes 表本身只让读自己的，这里走 SECURITY DEFINER 函数，
