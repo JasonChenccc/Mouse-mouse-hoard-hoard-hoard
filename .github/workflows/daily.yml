@@ -36,13 +36,25 @@ jobs:
 
       # 只有内容真的变了才提交，避免每天生成空提交
       - name: 提交变更
+        id: commit
         run: |
-          git config user.name "gitcode-actions"
-          git config user.email "actions@gitcode.com"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
           git add data/offers-extra.js data/offers.js data/offers.json
           if git diff --staged --quiet; then
             echo "内容无变化，跳过提交"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "自动更新数据 $(date -u '+%Y-%m-%d %H:%M UTC')"
             git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      # 关键：jsDelivr 对 @main 有约 12 小时缓存，
+      # 不主动 purge 的话用户要等半天才看到新数据
+      - name: 刷新 jsDelivr 缓存
+        if: steps.commit.outputs.changed == 'true'
+        run: |
+          curl -sS --max-time 20 \
+            "https://purge.jsdelivr.net/gh/JasonChenccc/Mouse-mouse-hoard-hoard-hoard@main/data/offers.json" \
+            || echo "purge 请求失败，缓存会自然过期"
