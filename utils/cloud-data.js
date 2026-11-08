@@ -176,7 +176,31 @@ async function pullActivity() {
 
 // 内容源走静态 JSON：每天由 GitCode 流水线更新，不需要发版。
 // 拉不到就返回 ok:false，调用方继续往下一级回退。
-const CDN_OFFERS = 'https://gitcode.com/yiyiJason/everydaytokens/raw/main/data/offers.json';
+//
+// GitCode 没有匿名可读的 raw 地址（/raw/ 返回的是网页），
+// 但 contents API 可以匿名读，代价是内容被 base64 包了一层，需要解码。
+// 若以后改走 jsDelivr，把 SOURCE 换成 kind:'raw' 即可，取数逻辑不用动。
+const b64 = require('./b64.js');
+
+const SOURCE = {
+  kind: 'gitcode-api',
+  url: 'https://api.gitcode.com/api/v5/repos/yiyiJason/everydaytokens/contents/data/offers.json?ref=main'
+};
+
+function parseBody(body) {
+  if (!body) return null;
+  // contents API：{ encoding: 'base64', content: '...' }
+  if (SOURCE.kind === 'gitcode-api') {
+    if (body.encoding === 'base64' && typeof body.content === 'string') {
+      const text = b64.b64ToUtf8(body.content.replace(/\s/g, ''));
+      if (!text) return null;
+      try { return JSON.parse(text); } catch (e) { return null; }
+    }
+    return null;
+  }
+  // 直出 JSON 的源（jsDelivr / 自建）
+  return typeof body === 'string' ? JSON.parse(body) : body;
+}
 
 function pullOffersFromCdn() {
   return new Promise(function (resolve) {
@@ -188,12 +212,22 @@ function pullOffersFromCdn() {
     const d = new Date();
     const v = '' + d.getFullYear() + (d.getMonth() + 1) + d.getDate();
     wx.request({
-      url: CDN_OFFERS + '?v=' + v,
+      url: SOURCE.url + '&v=' + v,
       method: 'GET',
       timeout: 8000,
+      header: { Accept: 'application/json' },
       success: function (res) {
-        const body = res && res.data;
-        if (res.statusCode !== 200 || !body || !Array.isArray(body.offers) || !body.offers.length) {
+        if (res.statusCode !== 200) {
+          resolve({ ok: false, message: 'CDN HTTP ' + res.statusCode });
+          return;
+        }
+        let body = null;
+        try {
+          body = parseBody(res.data);
+        } catch (e) {
+          body = null;
+        }
+        if (!body || !Array.isArray(body.offers) || !body.offers.length) {
           resolve({ ok: false, message: 'CDN 数据无效' });
           return;
         }
