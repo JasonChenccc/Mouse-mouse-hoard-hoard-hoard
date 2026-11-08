@@ -107,12 +107,20 @@ function castVote(id, idx) {
     value: TIER_NAMES[idx] || ''
   };
   store.addHistory(payload);
-  // 本地已生效；登录状态下顺手推云端，失败不影响本地
-  pushQuietly(cloudData.pushVote(id, idx).then(function () {
-    return cloudData.pushActivity(payload);
-  }));
 
-  return Promise.resolve(votes);
+  // 本地已生效；在线时等云端写完再 resolve，
+  // 否则调用方紧接着重拉聚合会读到写入前的旧票数，把乐观更新冲掉。
+  const pushed = online
+    ? cloudData.pushVote(id, idx).then(function () {
+        return cloudData.pushActivity(payload);
+      })
+    : Promise.resolve();
+
+  return pushed.then(function () {
+    return votes;
+  }).catch(function () {
+    return votes;
+  });
 }
 
 function getVotes() {
@@ -154,20 +162,32 @@ function toggleFav(id, name) {
     store.setFav({ log: log });
     const undo = { type: 'fav', id: id, name: name || nameOf(id), value: '撤回' };
     store.addHistory(undo);
-    pushQuietly(cloudData.removeFav(id).then(function () {
-      return cloudData.pushActivity(undo);
-    }));
-    return Promise.resolve({ voted: false });
+    const pushed = online
+      ? cloudData.removeFav(id).then(function () {
+          return cloudData.pushActivity(undo);
+        })
+      : Promise.resolve();
+    return pushed.then(function () {
+      return { voted: false };
+    }).catch(function () {
+      return { voted: false };
+    });
   }
 
   log.push({ id: id, ts: Date.now() });
   store.setFav({ log: log });
   const vote = { type: 'fav', id: id, name: name || nameOf(id), value: '投一票' };
   store.addHistory(vote);
-  pushQuietly(cloudData.pushFav(id).then(function () {
-    return cloudData.pushActivity(vote);
-  }));
-  return Promise.resolve({ voted: true });
+  const pushed = online
+    ? cloudData.pushFav(id).then(function () {
+        return cloudData.pushActivity(vote);
+      })
+    : Promise.resolve();
+  return pushed.then(function () {
+    return { voted: true };
+  }).catch(function () {
+    return { voted: true };
+  });
 }
 
 function clearFav() {
@@ -237,6 +257,9 @@ function replaceData(next) {
 }
 
 // 拉一次全站票数聚合。失败就保持 null，天梯退回本机票。
+// 返回值：true = 票数有变化需要重绘，false = 没变化或失败
+let aggregatesHash = '';
+
 function refreshAggregates() {
   return cloudData.pullVoteStats().then(function (r) {
     if (!r.ok) return false;
@@ -247,7 +270,36 @@ function refreshAggregates() {
       const t = Number(row.tier);
       if (t >= 0 && t < map[id].length) map[id][t] = Number(row.cnt) || 0;
     });
+    const h = JSON.stringify(map);
     aggregates = map;
+    if (h === aggregatesHash) return false;
+    aggregatesHash = h;
+    return true;
+  }).catch(function () {
+    return false;
+  });
+}
+
+// 最爱榜的全站票数：{ modelId: 票数 }。为 null 时按本机 log 算。
+let favAggregates = null;
+let favAggHash = '';
+
+function getFavAggregates() {
+  return favAggregates;
+}
+
+// sinceTs 传周/月起始毫秒时间戳
+function refreshFavAggregates(sinceTs) {
+  return cloudData.pullFavStats(sinceTs).then(function (r) {
+    if (!r.ok) return false;
+    const map = {};
+    r.data.forEach(function (row) {
+      map[row.model_id] = Number(row.cnt) || 0;
+    });
+    const h = JSON.stringify(map);
+    favAggregates = map;
+    if (h === favAggHash) return false;
+    favAggHash = h;
     return true;
   }).catch(function () {
     return false;
@@ -362,6 +414,8 @@ module.exports = {
   replaceData: replaceData,
   bootstrap: bootstrap,
   refreshAggregates: refreshAggregates,
+  getFavAggregates: getFavAggregates,
+  refreshFavAggregates: refreshFavAggregates,
   login: login,
   restoreSession: restoreSession,
   isOnline: isOnline,

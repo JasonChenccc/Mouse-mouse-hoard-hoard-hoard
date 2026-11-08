@@ -65,26 +65,8 @@
 
     <view class="pet-row">
       <text class="pet-name">{{pet.name}}</text>
-      <text class="pet-state">{{petState === 'focus' ? '专注中' : (petState === 'click' ? '回应你' : '待机')}}</text>
+      <text class="pet-state">{{petState === 'click' ? '回应你' : '待机'}}</text>
       <text class="pet-switch">长按有菜单</text>
-    </view>
-
-    <text class="time">{{timeText}}</text>
-
-    <view class="bar"><view class="bar-in" style="width:{{progress}}%"></view></view>
-
-    <view class="presets">
-      <view
-        class="pre {{minutes === item && !custom ? 'on' : ''}}"
-        wx:for="{{presets}}" wx:key="*this"
-        data-min="{{item}}" bindtap="onPreset"
-      >{{item}} 分</view>
-      <view class="pre {{custom ? 'on' : ''}}" bindtap="onCustom">{{custom ? customMin + ' 分' : '自定义'}}</view>
-    </view>
-
-    <view class="ctrl">
-      <view class="btn ghost" bindtap="onReset">重置</view>
-      <view class="btn main" bindtap="onToggle">{{running ? '暂停' : '开始专注'}}</view>
     </view>
 
     <text class="attr">{{attribution}}</text>

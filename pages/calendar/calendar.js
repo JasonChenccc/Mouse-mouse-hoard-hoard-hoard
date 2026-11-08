@@ -22,19 +22,6 @@ function daysBetween(a, b) {
 
 const WEEK = ['一', '二', '三', '四', '五', '六', '日'];
 
-// 按权重抽一个动作（保留给以后多动作扩展用）
-function pickWeighted(chain) {
-  if (!chain || !chain.length) return null;
-  let total = 0;
-  for (let i = 0; i < chain.length; i++) total += chain[i].w;
-  let r = Math.random() * total;
-  for (let i = 0; i < chain.length; i++) {
-    r -= chain[i].w;
-    if (r <= 0) return chain[i].k;
-  }
-  return chain[chain.length - 1].k;
-}
-
 Page({
   data: {
     week: WEEK,
@@ -48,15 +35,6 @@ Page({
     dayItems: [],
     upcoming: [],
     undatedCount: 0,
-    // 番茄钟
-    minutes: 25,
-    presets: [25, 45],
-    custom: false,
-    customMin: 0,
-    timeText: '25:00',
-    running: false,
-    started: false,
-    progress: 0,
     bubble: '',
     pet: null,
     petSrc: PETS.pets[0].poses.idle,
@@ -70,8 +48,6 @@ Page({
     const now = new Date();
     const todayStr = ymd(now.getFullYear(), now.getMonth(), now.getDate());
     const pet = PETS.pets[0];
-    this.total = 25 * 60;
-    this.remain = this.total;
     this.setData({
       year: now.getFullYear(),
       month: now.getMonth(),
@@ -86,29 +62,25 @@ Page({
 
   onShow: function () {
     this.setData({ fontClass: repo.getFont() });
+    this.build();
     this.updateTask();
   },
 
-  onHide: function () {
-    this.stopTimer();
-  },
-
   onUnload: function () {
-    this.stopTimer();
     if (this.clickTimer) clearTimeout(this.clickTimer);
   },
 
-  // 切换宠物状态：idle 待机 / focus 专注中 / click 点击回应
+  // 切换宠物状态：idle 待机 / click 点击回应
   setPet: function (state) {
     const poses = this.data.pet.poses;
     if (!poses[state]) return;
     if (state === 'click') {
       const self = this;
-      // 不清空 src：空值会让 image 渲染成破图，且恢复依赖 setTimeout，一旦被打断就一直空着
+      // 不清空 src：空值会让 image 渲染成破图
       this.setData({ petSrc: poses.click, petState: 'click' });
       if (this.clickTimer) clearTimeout(this.clickTimer);
       this.clickTimer = setTimeout(function () {
-        self.setPet(self.data.running ? 'focus' : 'idle');
+        self.setPet('idle');
       }, this.data.pet.clickHoldMs);
       return;
     }
@@ -123,7 +95,7 @@ Page({
     }
   },
 
-  // 宠物头顶待办：取最近一个将要到期的条目
+  // 宠物头顶提示：取最近一个将要到期的条目
   updateTask: function () {
     const now = new Date();
     let best = null;
@@ -135,7 +107,6 @@ Page({
     });
     let text = '';
     if (best) {
-      const d = parseYmd(best.date);
       const head = best.diff === 0 ? '今天到期' : best.diff + ' 天后到期';
       text = head + '：' + best.name;
     }
@@ -178,7 +149,6 @@ Page({
       });
     }
 
-    // 选中日的条目
     const dayItems = (map[selected] || []).map(function (o) {
       return {
         id: o.id,
@@ -189,7 +159,6 @@ Page({
       };
     });
 
-    // 未来 30 天内到期的
     const upcoming = [];
     Object.keys(map).forEach(function (k) {
       const diff = daysBetween(now, parseYmd(k));
@@ -261,130 +230,13 @@ Page({
     wx.navigateTo({ url: '/pages/detail/detail?id=' + encodeURIComponent(id) });
   },
 
-  /* ---------- 番茄钟 ---------- */
-
-  fmt: function (sec) {
-    return pad(Math.floor(sec / 60)) + ':' + pad(sec % 60);
-  },
-
-  onPreset: function (e) {
-    const min = Number(e.currentTarget.dataset.min);
-    this.stopTimer();
-    this.total = min * 60;
-    this.remain = this.total;
-    this.setData({
-      minutes: min,
-      custom: false,
-      timeText: this.fmt(this.remain),
-      running: false,
-      started: false,
-      progress: 0
-    });
-  },
-
-  onCustom: function () {
-    const self = this;
-    wx.showModal({
-      title: '自定义专注时长',
-      editable: true,
-      placeholderText: '输入分钟数，1-180',
-      content: this.data.customMin ? String(this.data.customMin) : '',
-      confirmText: '开始',
-      success: function (res) {
-        if (!res.confirm) return;
-        const n = parseInt(res.content, 10);
-        if (!n || n < 1 || n > 180) {
-          wx.showToast({ title: '请输入 1-180 之间的分钟数', icon: 'none' });
-          return;
-        }
-        self.stopTimer();
-        self.total = n * 60;
-        self.remain = self.total;
-        self.setData({
-          minutes: n,
-          custom: true,
-          customMin: n,
-          timeText: self.fmt(self.total),
-          running: false,
-          started: false,
-          progress: 0
-        });
-      }
-    });
-  },
-
-  onStart: function () {
-    if (this.data.running) return;
-    const self = this;
-    this.setData({ running: true, started: true });
-    this.setPet('focus');
-    this.timer = setInterval(function () {
-      self.remain -= 1;
-      if (self.remain <= 0) {
-        self.remain = 0;
-        self.stopTimer();
-        self.setData({
-          timeText: '00:00',
-          progress: 100,
-          running: false,
-          bubble: self.pickLine(true)
-        });
-        self.setPet('idle');
-        if (typeof wx.vibrateLong === 'function') {
-          wx.vibrateLong({ fail: function () {} });
-        }
-        wx.showToast({ title: '二十五分钟到', icon: 'none' });
-        return;
-      }
-      self.setData({
-        timeText: self.fmt(self.remain),
-        progress: Math.round((1 - self.remain / self.total) * 100)
-      });
-    }, 1000);
-  },
-
-  onPause: function () {
-    this.stopTimer();
-    this.setData({ running: false });
-    this.setPet('idle');
-  },
-
-  onToggle: function () {
-    if (this.data.running) {
-      this.onPause();
-    } else {
-      this.onStart();
-    }
-  },
-
-  onReset: function () {
-    this.stopTimer();
-    this.remain = this.total;
-    this.setData({
-      timeText: this.fmt(this.total),
-      running: false,
-      started: false,
-      progress: 0
-    });
-    this.setPet('idle');
-  },
-
-  stopTimer: function () {
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
-  },
-
-  pickLine: function (done) {
-    const pet = this.data.pet;
-    const pool = done ? pet.doneLines : pet.lines;
-    const i = Math.floor(Math.random() * pool.length);
-    return pool[i];
+  pickLine: function () {
+    const pool = this.data.pet.lines;
+    return pool[Math.floor(Math.random() * pool.length)];
   },
 
   onTapPet: function () {
-    this.setData({ bubble: this.pickLine(false) });
+    this.setData({ bubble: this.pickLine() });
     this.setPet('click');
   },
 
@@ -392,16 +244,12 @@ Page({
   onLongPressPet: function () {
     const self = this;
     wx.showActionSheet({
-      itemList: ['专心一点（专注中）', '休息一下（回待机）', '换一句话'],
+      itemList: ['换一句话', '换一个角色'],
       success: function (res) {
         if (res.tapIndex === 0) {
-          self.setPet('focus');
-          wx.showToast({ title: '已切到专注', icon: 'none' });
-        } else if (res.tapIndex === 1) {
-          self.setPet('idle');
-          wx.showToast({ title: '已回待机', icon: 'none' });
+          self.setData({ bubble: self.pickLine() });
         } else {
-          self.setData({ bubble: self.pickLine(false) });
+          self.onSwitchPet();
         }
       }
     });

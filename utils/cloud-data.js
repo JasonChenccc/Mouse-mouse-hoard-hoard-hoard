@@ -188,9 +188,25 @@ async function pullVoteStats() {
   }
 }
 
+// 最爱榜的全站票数。同样走 SECURITY DEFINER，只给计数不给用户。
+// sinceTs 传周/月的起始时间，传空则统计全部。
+async function pullFavStats(sinceTs) {
+  const c = cloud.get();
+  if (!c) return { ok: false, message: '云服务未就绪' };
+  try {
+    const args = sinceTs ? { since_ts: new Date(sinceTs).toISOString() } : { since_ts: '1970-01-01T00:00:00Z' };
+    const { data, error } = await c.database.rpc('fav_stats', args);
+    if (error) return fail(error, '拉取最爱票统计');
+    return { ok: true, data: data || [] };
+  } catch (e) {
+    return fail(e, '拉取最爱票统计');
+  }
+}
+
 module.exports = {
   pullOffers: pullOffers,
   pullVoteStats: pullVoteStats,
+  pullFavStats: pullFavStats,
   pushVote: pushVote,
   pullVotes: pullVotes,
   pushFav: pushFav,

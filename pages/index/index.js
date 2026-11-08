@@ -110,6 +110,8 @@ Page({
     this.tick();
     this.startTicker();
     this.refresh();
+    // 进页面立即拉一次全站票数，别人刚投的票也能看到
+    this.syncVotes();
   },
 
   onHide: function () {
@@ -135,7 +137,17 @@ Page({
     this.stopTicker();
     this.ticker = setInterval(function () {
       self.tick();
+      // 每 30 秒顺带拉一次全站票数，别人的新票最多延迟一个周期
+      self.syncVotes();
     }, 30000);
+  },
+
+  // 拉全站票数；有变化才重绘，避免无谓重排
+  syncVotes: function () {
+    const self = this;
+    return repo.refreshAggregates().then(function (changed) {
+      if (changed) self.refresh();
+    }).catch(function () {});
   },
 
   stopTicker: function () {
@@ -363,8 +375,13 @@ Page({
       if (typeof wx.vibrateShort === 'function') {
         wx.vibrateShort({ type: 'light', fail: function () {} });
       }
+      // 云端已写完，重拉一次就能看到含这一票的全站票数
+      return repo.refreshAggregates();
+    }).then(function () {
       self.refresh();
       wx.showToast({ title: '已评为' + (TIERS[idx] ? TIERS[idx].n : ''), icon: 'none' });
+    }).catch(function () {
+      self.refresh();
     });
   },
 

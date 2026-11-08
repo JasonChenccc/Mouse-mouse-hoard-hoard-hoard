@@ -60,6 +60,17 @@ Page({
   onShow: function () {
     this.setData({ fontClass: repo.getFont() });
     this.refresh();
+    this.syncRank();
+  },
+
+  // 拉全站最爱票；周/月窗口不同，切榜时要重新拉
+  syncRank: function () {
+    const self = this;
+    const now = new Date();
+    const since = this.data.board === 'week' ? startOfWeek(now) : startOfMonth(now);
+    return repo.refreshFavAggregates(since.getTime()).then(function (changed) {
+      if (changed) self.refresh();
+    }).catch(function () {});
   },
 
   refresh: function () {
@@ -72,12 +83,18 @@ Page({
       ? '本周 ' + fmtMD(since) + ' – ' + fmtMD(endOfWeek(now))
       : now.getFullYear() + ' 年 ' + (now.getMonth() + 1) + ' 月';
 
-    // 窗口内每个模型拿到几票
+    // 票数优先用全站聚合（fav_stats），没拉到才退回本机记录
+    const agg = repo.getFavAggregates();
     const tally = {};
-    log.forEach(function (r) {
-      if (r.ts >= sinceTs) tally[r.id] = (tally[r.id] || 0) + 1;
-    });
+    if (agg) {
+      Object.keys(agg).forEach(function (id) { tally[id] = agg[id]; });
+    } else {
+      log.forEach(function (r) {
+        if (r.ts >= sinceTs) tally[r.id] = (tally[r.id] || 0) + 1;
+      });
+    }
 
+    // 「我投了哪些」仍取自本机记录，别人的票看不到是谁投的
     const votedIds = {};
     log.forEach(function (r) { votedIds[r.id] = true; });
 
@@ -135,7 +152,11 @@ Page({
   onBoard: function (e) {
     const k = e.currentTarget.dataset.k;
     if (k === this.data.board) return;
-    this.setData({ board: k }, this.refresh);
+    const self = this;
+    this.setData({ board: k }, function () {
+      self.refresh();
+      self.syncRank();
+    });
   },
 
   onPick: function (e) {
@@ -148,8 +169,15 @@ Page({
       if (r.voted && typeof wx.vibrateShort === 'function') {
         wx.vibrateShort({ type: 'light', fail: function () {} });
       }
+      // 云端写完后再拉一次全站票数，榜单立刻反映这一票
+      return self.syncRank().then(function () {
+        return r;
+      });
+    }).then(function (r) {
       self.refresh();
       wx.showToast({ title: r.voted ? '已投一票' : '已撤回', icon: 'none' });
+    }).catch(function () {
+      self.refresh();
     });
   },
 

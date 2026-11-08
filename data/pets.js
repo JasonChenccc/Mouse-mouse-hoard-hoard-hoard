@@ -1,4 +1,4 @@
-// 番茄钟角色。
+// 日历页的桌宠角色。
 // 动画素材来自 dsh-pet（https://github.com/PC2005-cloud/dsh-pet），
 // 形象「大肥鱼」为社区二创的 DeepSeek 鲸鱼娘，CC BY-NC-SA 4.0：
 // 署名 · 非商业 · 相同方式共享。本项目为非商业用途，故可使用并在此署名。
@@ -14,7 +14,7 @@ module.exports = {
       name: '大肥鱼',
       poses: {
         idle: '/assets/pet/gif/daiji.gif',
-        focus: '/assets/pet/gif/xie-daima.gif',
+        // focus 姿态随番茄钟一并移除，写代码那张 GIF 不再打包
         click: '/assets/pet/gif/dianji.gif'
       },
       clickHoldMs: 2400,
