@@ -45,6 +45,14 @@
       {
         "type": "file",
         "value": "HANDOVER.md"
+      },
+      {
+        "type": "file",
+        "value": "鼠鼠的AI笔记-项目概览.md"
+      },
+      {
+        "type": "file",
+        "value": "鼠鼠的AI笔记-运营维护手册.md"
       }
     ],
     "include": []
