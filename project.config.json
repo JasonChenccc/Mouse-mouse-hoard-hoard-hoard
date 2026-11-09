@@ -41,6 +41,10 @@
       {
         "type": "folder",
         "value": ".git"
+      },
+      {
+        "type": "file",
+        "value": "HANDOVER.md"
       }
     ],
     "include": []
