@@ -423,7 +423,7 @@ ALL.forEach(function (o) {
 });
 
 module.exports = {
-  fetchedAt: '2026-11-15 12:31',
+  fetchedAt: '2026-11-16 12:28',
   sources: 'saibodan.com · OpenRouter · cyber-egg',
   offers: ALL
 };
