@@ -2,6 +2,7 @@ const MASCOT = require('../../data/mascot.js');
 const repo = require('../../utils/repo.js');
 const labels = require('../../utils/labels.js');
 const clock = require('../../utils/clock.js');
+const guide = require('../../utils/guide.js');
 
 // 搜索别名：让「讯飞」「spark」「gemini」这类叫法都能命中
 const ALIAS = {
@@ -82,6 +83,8 @@ Page({
     fontClass: '',
     query: '',
     resultCount: 0,
+    limitHit: false,
+    guide: { show: false, step: 0, total: guide.STEPS.length, text: '', tipY: 0, last: false, box: { x: 0, y: 0, w: 0, h: 0 } },
     hint: '',
     tierFilter: 'all',
     delivFilter: 'all',
@@ -114,6 +117,58 @@ Page({
     this.refresh();
     // 进页面立即拉一次全站票数，别人刚投的票也能看到
     this.syncVotes();
+    // 新手引导：纯前端、零云。仅首次进入或版本不匹配时弹。
+    this.maybeGuide();
+  },
+
+  // 引导入口：一带渲染完再定位节点，避免取不到位置
+  maybeGuide: function () {
+    const self = this;
+    if (guide.isDone()) return;
+    setTimeout(function () { self.showGuideStep(0); }, 120);
+  },
+
+  showGuideStep: function (step) {
+    const self = this;
+    if (guide.isDone()) return;
+    guide.locate(this, step, function (box) {
+      if (!box) { guide.markDone(); return; } // 节点取不到就别卡住用户
+      const text = guide.STEPS[step].text;
+      self.setData({
+        guide: {
+          show: true,
+          step: step,
+          total: guide.STEPS.length,
+          text: text,
+          tipY: box.tipY,
+          last: step === guide.STEPS.length - 1,
+          box: { x: box.x, y: box.y, w: box.w, h: box.h }
+        }
+      });
+    });
+  },
+
+  onGuideNext: function () {
+    const g = this.data.guide;
+    if (!g.show) return;
+    if (g.last) {
+      this.finishGuide();
+    } else {
+      this.showGuideStep(g.step + 1);
+    }
+  },
+
+  onGuideSkip: function () {
+    this.finishGuide();
+  },
+
+  onGuideMask: function () {
+    // 点遮罩其他地方无效（不推进、不关闭），只有高亮区/提示卡/跳过有效
+  },
+
+  finishGuide: function () {
+    guide.markDone();
+    this.setData({ 'guide.show': false });
   },
 
   onHide: function () {
@@ -308,6 +363,7 @@ Page({
     this.setData({
       list: list,
       resultCount: matched.length,
+      limitHit: repo.limitState().reached,
       hint: hint,
       god: g ? {
         name: g.o.name,
@@ -401,13 +457,20 @@ Page({
   commitVote: function (id, idx) {
     const self = this;
     // 一人一票、改票退旧票的规则收在 repo 里，页面只表达「我要投这一档」
-    repo.castVote(id, idx).then(function () {
+    repo.castVote(id, idx).then(function (r) {
+      // 命中频率上限：repo 已拒绝写入，提示原因，不当成功处理
+      if (r && r.blocked) {
+        wx.showToast({ title: r.reason, icon: 'none' });
+        self.refresh();
+        return null;
+      }
       if (typeof wx.vibrateShort === 'function') {
         wx.vibrateShort({ type: 'light', fail: function () {} });
       }
       // 云端已写完，重拉一次就能看到含这一票的全站票数
       return repo.refreshAggregates();
-    }).then(function () {
+    }).then(function (ok) {
+      if (ok === null) return;
       self.refresh();
       wx.showToast({ title: '已评为' + (TIERS[idx] ? TIERS[idx].n : ''), icon: 'none' });
     }).catch(function () {

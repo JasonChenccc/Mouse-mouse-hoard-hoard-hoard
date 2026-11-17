@@ -90,9 +90,9 @@
     >{{item.t}}</view>
   </scroll-view>
 
-  <view class="list">
+  <view class="list" id="gd-list">
 
-    <view class="card {{item.dead ? 'dead' : ''}}" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpen">
+    <view class="card {{item.dead ? 'dead' : ''}}" wx:for="{{list}}" wx:key="id" id="{{index === 0 ? 'gd-card' : ''}}" data-id="{{item.id}}" bindtap="onOpen">
       <view class="accent {{item.tierKey}}"></view>
 
       <view class="c-top">
@@ -122,21 +122,21 @@
         <text class="paid-note">要先买会员才拿得到</text>
       </view>
 
-      <view class="vote">
+      <view class="vote" id="{{index === 0 ? 'gd-vote' : ''}}">
         <view
-          class="vbtn {{item.myVote === 0 ? 'on spit' : ''}} {{item.dead ? 'off' : ''}}"
+          class="vbtn {{item.myVote === 0 ? 'on spit' : ''}} {{item.dead ? 'off' : ''}} {{limitHit ? 'lim-off' : ''}}"
           data-id="{{item.id}}" data-idx="0" catchtap="onVote"
         >小杯作者</view>
         <view
-          class="vbtn {{item.myVote === 1 ? 'on mid' : ''}} {{item.dead ? 'off' : ''}}"
+          class="vbtn {{item.myVote === 1 ? 'on mid' : ''}} {{item.dead ? 'off' : ''}} {{limitHit ? 'lim-off' : ''}}"
           data-id="{{item.id}}" data-idx="1" catchtap="onVote"
         >中杯</view>
         <view
-          class="vbtn {{item.myVote === 2 ? 'on big' : ''}} {{item.dead ? 'off' : ''}}"
+          class="vbtn {{item.myVote === 2 ? 'on big' : ''}} {{item.dead ? 'off' : ''}} {{limitHit ? 'lim-off' : ''}}"
           data-id="{{item.id}}" data-idx="2" catchtap="onVote"
         >大杯</view>
         <view
-          class="vbtn {{item.myVote === 3 ? 'on xl' : ''}} {{item.dead ? 'off' : ''}}"
+          class="vbtn {{item.myVote === 3 ? 'on xl' : ''}} {{item.dead ? 'off' : ''}} {{limitHit ? 'lim-off' : ''}}"
           data-id="{{item.id}}" data-idx="3" catchtap="onVote"
         >超大杯</view>
       </view>
@@ -167,6 +167,25 @@
   <view class="foot">
     <text class="foot-t">档位取「票数过半」的那一档，没过半标「分歧」。幻神由超大杯里占比最高的一条独占，伪免费不参选，已结束的退出排名。</text>
     <view class="reset" bindtap="onReset">清空我的投票</view>
+  </view>
+
+  <!-- 新手引导：纯前端，零云 -->
+  <view class="gd-layer" wx:if="{{guide.show}}" catchtap="onGuideMask">
+    <view class="gd-shade" style="left:0;top:0;right:0;height:{{guide.box.y}}px;"></view>
+    <view class="gd-shade" style="left:0;top:{{guide.box.y + guide.box.h}}px;right:0;bottom:0;"></view>
+    <view class="gd-shade" style="left:0;top:{{guide.box.y}}px;width:{{guide.box.x}}px;height:{{guide.box.h}}px;"></view>
+    <view class="gd-shade" style="left:{{guide.box.x + guide.box.w}}px;top:{{guide.box.y}}px;right:0;height:{{guide.box.h}}px;"></view>
+    <!-- 高亮洞：只推进引导，不穿透到下面的真实按钮 -->
+    <view class="gd-hole" style="left:{{guide.box.x}}px;top:{{guide.box.y}}px;width:{{guide.box.w}}px;height:{{guide.box.h}}px;" catchtap="onGuideNext"></view>
+    <!-- 提示卡 -->
+    <view class="gd-tip" style="left:24px;right:24px;top:{{guide.tipY}}px;" catchtap="onGuideNext">
+      <text class="gd-step">{{guide.step + 1}}/{{guide.total}}</text>
+      <text class="gd-text">{{guide.text}}</text>
+      <text class="gd-next" wx:if="{{!guide.last}}">点这里继续 ›</text>
+      <text class="gd-next" wx:else>知道了 ›</text>
+    </view>
+    <!-- 跳过：stop 传播，不进下一步 -->
+    <view class="gd-skip" catchtap="onGuideSkip">跳过引导</view>
   </view>
 
 </view>

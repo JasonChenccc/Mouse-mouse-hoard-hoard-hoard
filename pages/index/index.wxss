@@ -579,6 +579,11 @@
   opacity: 0.35;
 }
 
+/* 本月操作到上限：按钮灰化，点击仍由 repo 拦截并提示原因 */
+.vbtn.lim-off {
+  opacity: 0.35;
+}
+
 .vbtn.on {
   color: #ffffff;
 }
@@ -671,4 +676,59 @@
   font-size: 22rpx;
   font-size: calc(22rpx * var(--fs, 1));
   text-align: center;
+}
+
+/* ===== 新手引导（纯前端，零云） ===== */
+.gd-layer {
+  position: fixed;
+  left: 0; top: 0; right: 0; bottom: 0;
+  z-index: 1000;
+}
+.gd-shade {
+  position: absolute;
+  background: rgba(20, 20, 18, 0.62);
+}
+.gd-hole {
+  position: absolute;
+  background: transparent;
+  border: 2rpx solid rgba(255, 255, 255, 0.85);
+  border-radius: 16rpx;
+  box-shadow: 0 0 0 6rpx rgba(255, 255, 255, 0.18);
+}
+.gd-tip {
+  position: absolute;
+  z-index: 2;
+  background: #1c1c1a;
+  border-radius: 20rpx;
+  padding: 28rpx 30rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+}
+.gd-step {
+  color: #b8842a;
+  font-size: 22rpx;
+  letter-spacing: 2rpx;
+  margin-bottom: 12rpx;
+}
+.gd-text {
+  color: #ffffff;
+  font-size: 30rpx;
+  line-height: 1.5;
+}
+.gd-next {
+  color: #d8d5cc;
+  font-size: 24rpx;
+  margin-top: 18rpx;
+  text-align: right;
+}
+.gd-skip {
+  position: absolute;
+  z-index: 2;
+  right: 30px;
+  bottom: 32px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 26rpx;
+  padding: 12rpx 24rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.5);
+  border-radius: 40rpx;
 }

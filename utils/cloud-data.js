@@ -174,6 +174,25 @@ async function pullActivity() {
   }
 }
 
+// 当月写操作条数，用于硬阈值校验。RLS 保证只数自己的行（owner_id = auth.uid()），
+// 不需要也不允许传 uid。未登录时调用方不应触发本函数（没有 auth.uid() 会失败）。
+// ⚠️ 客户端校验，可绕过，不是服务端强制——见 limits.js 顶部说明。
+async function countActivitySince(sinceTs) {
+  const c = cloud.get();
+  if (!c) return { ok: false, message: '云服务未就绪' };
+  try {
+    const iso = new Date(sinceTs).toISOString();
+    const { count, error } = await c.database
+      .from('activity')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', iso);
+    if (error) return fail(error, '统计本月操作');
+    return { ok: true, count: typeof count === 'number' ? count : 0 };
+  } catch (e) {
+    return fail(e, '统计本月操作');
+  }
+}
+
 // 内容源：优先 ghproxy（实时回源，能立刻拿到最新 commit），
 // jsDelivr 兜底（快，但对 @main 有长缓存，可能落后一天）。
 const SOURCES = [
@@ -268,5 +287,6 @@ module.exports = {
   pushProfile: pushProfile,
   pullProfile: pullProfile,
   pushActivity: pushActivity,
-  pullActivity: pullActivity
+  pullActivity: pullActivity,
+  countActivitySince: countActivitySince
 };

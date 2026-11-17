@@ -229,6 +229,11 @@
   color: #ffffff;
 }
 
+/* 本月操作到上限：按钮灰化，点击仍由 repo 拦截并提示原因 */
+.pick.lim-off {
+  opacity: 0.35;
+}
+
 /* 底部 */
 .foot {
   margin-top: 22rpx;

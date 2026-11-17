@@ -40,7 +40,7 @@
 
       <view class="row-right">
         <text class="row-vote {{item.votes ? 'has' : ''}}">{{item.votes}}</text>
-        <view class="pick {{item.voted ? 'on' : ''}}" data-id="{{item.id}}" data-name="{{item.name}}" bindtap="onPick">
+        <view class="pick {{item.voted ? 'on' : ''}} {{limitHit ? 'lim-off' : ''}}" data-id="{{item.id}}" data-name="{{item.name}}" bindtap="onPick">
           {{item.voted ? '已投' : '投票'}}
         </view>
       </view>

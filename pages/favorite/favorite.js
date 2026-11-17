@@ -48,6 +48,7 @@ Page({
     period: '',
     list: [],
     top: null,
+    limitHit: false,
     votedCount: 0,
     newCount: 0,
     totalModels: 0
@@ -175,6 +176,7 @@ Page({
     this.setData({
       list: rows,
       top: totalVotes > 0 ? rows[0] : null,
+      limitHit: repo.limitState().reached,
       period: period,
       votedCount: Object.keys(votedIds).length,
       newCount: rows.filter(function (r) { return r.isNew; }).length,
@@ -206,6 +208,11 @@ Page({
       if (!ok) return null;
       // 投票 / 撤回的判定和记录都在 repo 里，页面只管反馈
       return repo.toggleFav(id, name).then(function (r) {
+        // 命中频率上限：repo 已拒绝写入，提示原因，不当成功处理
+        if (r && r.blocked) {
+          wx.showToast({ title: r.reason, icon: 'none' });
+          return null;
+        }
         if (r.voted && typeof wx.vibrateShort === 'function') {
           wx.vibrateShort({ type: 'light', fail: function () {} });
         }

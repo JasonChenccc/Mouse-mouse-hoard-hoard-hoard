@@ -11,6 +11,7 @@
 const DATA = require('../data/offers.js');
 const POPULAR = require('../data/popular.js');
 const store = require('./store.js');
+const limits = require('./limits.js');
 
 // 内存缓存：云端拉到新数据时整体替换，页面下次 refresh 即可见
 const mem = {
@@ -58,6 +59,37 @@ function nameOf(id) {
   return id;
 }
 
+// ---------- 写操作频率限制 ----------
+// 软阈值：本机计数（limits.js，跨月归零）。查询/浏览不经过这里，零云消耗。
+// 硬阈值：登录用户查云端 activity 当月行数（RLS 只数自己的），超出拒绝写入。
+// ⚠️ 硬阈值是客户端校验，可绕过，不是服务端强制——见 limits.js 顶部说明。
+// fail-open：云端计数失败（含云服务耗尽）时放行，保住本机记录可用的兜底语义。
+function checkWriteLimit() {
+  // 软阈值先拦（同步、零云）
+  if (limits.softReached()) {
+    return Promise.resolve({ blocked: true, reason: limits.SOFT_MSG });
+  }
+  // 未登录写不了云，本地软计数已生效，不做云端校验
+  if (!online) {
+    limits.bumpLocal();
+    return Promise.resolve({ ok: true });
+  }
+  // 登录：按 uid 数当月 activity 行，>= 硬上限则拒绝
+  return cloudData.countActivitySince(limits.monthStartMs()).then(function (r) {
+    if (!r.ok) return { ok: true }; // 查不到就放行，不因限流查询失败而阻断写入
+    if (r.count >= limits.HARD_LIMIT) {
+      return { blocked: true, reason: limits.HARD_MSG };
+    }
+    limits.bumpLocal();
+    return { ok: true };
+  });
+}
+
+// 给页面读：是否该把投票/收藏按钮置灰
+function limitState() {
+  return limits.limitState();
+}
+
 // ---------- 写：评级 ----------
 
 // 第 0 档不是「最差评价」，而是纠错标记：指这条信息本身有问题（额度/期限/门槛不符）
@@ -83,43 +115,49 @@ function normalizeCounts(c) {
 // 一人一条，改票时把旧票退掉。这条不变式放在数据层，
 // 以后云端同步时两端用的是同一套规则，不会各算各的。
 function castVote(id, idx) {
-  const votes = store.getVotes();
-  const cur = votes[id] || { c: emptyCounts(), mine: -1 };
-  const c = normalizeCounts(cur.c);
-  if (cur.mine >= 0 && c[cur.mine] > 0) c[cur.mine] -= 1;
-  c[idx] += 1;
-  votes[id] = { c: c, mine: idx };
-  store.setVotes(votes);
+  // 先过频率限制：超阈值直接拒绝，本地也不落地。
+  // 被拦时返回 { blocked:true, reason }，页面据此提示，不会误报「已评级」。
+  return checkWriteLimit().then(function (chk) {
+    if (chk.blocked) return chk;
 
-  // 乐观更新聚合，让天梯在下次拉取前就反映这一票
-  if (aggregates) {
-    if (!aggregates[id]) aggregates[id] = emptyCounts();
-    const agg = aggregates[id];
-    if (cur.mine >= 0 && agg[cur.mine] > 0) agg[cur.mine] -= 1;
-    if (idx >= 0 && idx < agg.length) agg[idx] += 1;
-  }
+    const votes = store.getVotes();
+    const cur = votes[id] || { c: emptyCounts(), mine: -1 };
+    const c = normalizeCounts(cur.c);
+    if (cur.mine >= 0 && c[cur.mine] > 0) c[cur.mine] -= 1;
+    c[idx] += 1;
+    votes[id] = { c: c, mine: idx };
+    store.setVotes(votes);
 
-  const offer = offerById(id);
-  const payload = {
-    type: 'tier',
-    id: id,
-    name: offer ? offer.name : id,
-    value: TIER_NAMES[idx] || ''
-  };
-  store.addHistory(payload);
+    // 乐观更新聚合，让天梯在下次拉取前就反映这一票
+    if (aggregates) {
+      if (!aggregates[id]) aggregates[id] = emptyCounts();
+      const agg = aggregates[id];
+      if (cur.mine >= 0 && agg[cur.mine] > 0) agg[cur.mine] -= 1;
+      if (idx >= 0 && idx < agg.length) agg[idx] += 1;
+    }
 
-  // 本地已生效；在线时等云端写完再 resolve，
-  // 否则调用方紧接着重拉聚合会读到写入前的旧票数，把乐观更新冲掉。
-  const pushed = online
-    ? cloudData.pushVote(id, idx).then(function () {
-        return cloudData.pushActivity(payload);
-      })
-    : Promise.resolve();
+    const offer = offerById(id);
+    const payload = {
+      type: 'tier',
+      id: id,
+      name: offer ? offer.name : id,
+      value: TIER_NAMES[idx] || ''
+    };
+    store.addHistory(payload);
 
-  return pushed.then(function () {
-    return votes;
-  }).catch(function () {
-    return votes;
+    // 本地已生效；在线时等云端写完再 resolve，
+    // 否则调用方紧接着重拉聚合会读到写入前的旧票数，把乐观更新冲掉。
+    const pushed = online
+      ? cloudData.pushVote(id, idx).then(function () {
+          return cloudData.pushActivity(payload);
+        })
+      : Promise.resolve();
+
+    return pushed.then(function () {
+      return votes;
+    }).catch(function () {
+      return votes;
+    });
   });
 }
 
@@ -154,39 +192,43 @@ function hasFav(id) {
 
 // 再点一次是撤回，和原来的交互一致
 function toggleFav(id, name) {
-  const log = getFavLog().slice();
-  const i = log.findIndex(function (r) { return r.id === id; });
+  return checkWriteLimit().then(function (chk) {
+    if (chk.blocked) return chk;
 
-  if (i >= 0) {
-    log.splice(i, 1);
+    const log = getFavLog().slice();
+    const i = log.findIndex(function (r) { return r.id === id; });
+
+    if (i >= 0) {
+      log.splice(i, 1);
+      store.setFav({ log: log });
+      const undo = { type: 'fav', id: id, name: name || nameOf(id), value: '撤回' };
+      store.addHistory(undo);
+      const pushed = online
+        ? cloudData.removeFav(id).then(function () {
+            return cloudData.pushActivity(undo);
+          })
+        : Promise.resolve();
+      return pushed.then(function () {
+        return { voted: false };
+      }).catch(function () {
+        return { voted: false };
+      });
+    }
+
+    log.push({ id: id, ts: Date.now() });
     store.setFav({ log: log });
-    const undo = { type: 'fav', id: id, name: name || nameOf(id), value: '撤回' };
-    store.addHistory(undo);
+    const vote = { type: 'fav', id: id, name: name || nameOf(id), value: '投一票' };
+    store.addHistory(vote);
     const pushed = online
-      ? cloudData.removeFav(id).then(function () {
-          return cloudData.pushActivity(undo);
+      ? cloudData.pushFav(id).then(function () {
+          return cloudData.pushActivity(vote);
         })
       : Promise.resolve();
     return pushed.then(function () {
-      return { voted: false };
+      return { voted: true };
     }).catch(function () {
-      return { voted: false };
+      return { voted: true };
     });
-  }
-
-  log.push({ id: id, ts: Date.now() });
-  store.setFav({ log: log });
-  const vote = { type: 'fav', id: id, name: name || nameOf(id), value: '投一票' };
-  store.addHistory(vote);
-  const pushed = online
-    ? cloudData.pushFav(id).then(function () {
-        return cloudData.pushActivity(vote);
-      })
-    : Promise.resolve();
-  return pushed.then(function () {
-    return { voted: true };
-  }).catch(function () {
-    return { voted: true };
   });
 }
 
@@ -472,6 +514,7 @@ module.exports = {
   requireLogin: requireLogin,
   restoreSession: restoreSession,
   isOnline: isOnline,
+  limitState: limitState,
   TIER_NAMES: TIER_NAMES,
   TIER_KEYS: TIER_KEYS,
   emptyCounts: emptyCounts,
