@@ -13,6 +13,7 @@ Page({
   },
 
   onShow: function () {
+    if (getApp() && getApp().flushLoginError) getApp().flushLoginError();
     this.setData({
       fontClass: repo.getFont(),
       myId: repo.getMyId(),
@@ -105,5 +106,12 @@ Page({
       return;
     }
     wx.showModal({ title: '请手动复制', content: text, showCancel: false });
+  },
+
+  onShareAppMessage: function () {
+    return {
+      title: '鼠鼠的AI笔记 · 我的 AI 试用记录本',
+      path: '/pages/mine/mine?from=share'
+    };
   }
 });

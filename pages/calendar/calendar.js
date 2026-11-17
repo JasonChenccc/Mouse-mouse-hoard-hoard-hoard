@@ -61,6 +61,7 @@ Page({
   },
 
   onShow: function () {
+    if (getApp() && getApp().flushLoginError) getApp().flushLoginError();
     this.setData({ fontClass: repo.getFont() });
     this.build();
     this.updateTask();
@@ -266,5 +267,19 @@ Page({
       pet: PETS.pets[next],
       bubble: PETS.pets[next].lines[0]
     });
+  },
+
+  onShareAppMessage: function () {
+    return {
+      title: '鼠鼠的AI笔记 · AI 试用到期日历，哪些快结束了',
+      path: '/pages/calendar/calendar?from=share'
+    };
+  },
+
+  onShareTimeline: function () {
+    return {
+      title: '鼠鼠的AI笔记 · AI 试用到期日历',
+      query: 'from=share'
+    };
   }
 });

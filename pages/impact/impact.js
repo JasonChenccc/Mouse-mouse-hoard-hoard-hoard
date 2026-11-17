@@ -48,6 +48,7 @@ Page({
   },
 
   onShow: function () {
+    if (getApp() && getApp().flushLoginError) getApp().flushLoginError();
     this.setData({ fontClass: repo.getFont() });
     this.refresh();
   },
@@ -92,5 +93,12 @@ Page({
         wx.showToast({ title: '已清空', icon: 'none' });
       }
     });
+  },
+
+  onShareAppMessage: function () {
+    return {
+      title: '鼠鼠的AI笔记 · 我记过的 AI 试用票',
+      path: '/pages/impact/impact?from=share'
+    };
   }
 });

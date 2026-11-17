@@ -2,14 +2,14 @@
 
   <view class="hd">
     <text class="h1">我的</text>
-    <text class="hd-sub">本机设置与记录 · 不上传</text>
+    <text class="hd-sub">账号与记录 · 登录后跨设备同步</text>
   </view>
 
   <view class="card">
     <text class="card-t">云同步</text>
     <view class="row">
       <text class="row-k">状态</text>
-      <text class="row-v {{online ? '' : 'empty'}}">{{online ? '已登录，投票会跨设备同步' : '未登录，投票只存本机'}}</text>
+      <text class="row-v {{online ? '' : 'empty'}}">{{online ? '已登录，投票会跨设备同步' : '未登录，登录后才能投票并同步'}}</text>
     </view>
     <view class="login-btn" wx:if="{{!online}}" bindtap="onLogin">{{logging ? '登录中…' : '微信登录'}}</view>
     <text class="row-note">登录只用于区分你的投票，不读取头像和昵称。</text>
@@ -62,7 +62,7 @@
   <view class="meta">
     <text class="meta-t">数据更新于 {{fetchedAt}}（北京时间）</text>
     <text class="meta-t">共 {{totalOffers}} 条 · 来源 {{sources}}</text>
-    <text class="meta-t">投票和设置都只存在这台设备上，没有联网。</text>
+    <text class="meta-t">投票和收藏登录后跨设备同步；字号等设置只存在这台设备。</text>
   </view>
 
 </view>

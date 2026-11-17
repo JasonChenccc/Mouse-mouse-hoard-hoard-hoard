@@ -58,6 +58,7 @@ Page({
   },
 
   onShow: function () {
+    if (getApp() && getApp().flushLoginError) getApp().flushLoginError();
     this.setData({ fontClass: repo.getFont() });
     this.refresh();
     this.syncRank();
@@ -234,5 +235,19 @@ Page({
         self.refresh();
       }
     });
+  },
+
+  onShareAppMessage: function () {
+    return {
+      title: '鼠鼠的AI笔记 · 大家投出来的 AI 最爱榜',
+      path: '/pages/favorite/favorite?from=share'
+    };
+  },
+
+  onShareTimeline: function () {
+    return {
+      title: '鼠鼠的AI笔记 · 大家投出来的 AI 最爱榜',
+      query: 'from=share'
+    };
   }
 });

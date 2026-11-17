@@ -18,11 +18,14 @@ Page({
   },
 
   onShow: function () {
+    if (getApp() && getApp().flushLoginError) getApp().flushLoginError();
     this.setData({ fontClass: repo.getFont() });
   },
 
   onLoad: function (options) {
     const id = options && options.id ? decodeURIComponent(options.id) : '';
+    // 分享出去要能回到这一条，把 id 留着给钩子拼 path/query
+    this.offerId = id;
     const offer = repo.offers().filter(function (x) { return x.id === id; })[0];
     if (!offer) {
       this.setData({ notFound: true });
@@ -92,5 +95,23 @@ Page({
       return;
     }
     wx.showModal({ title: '手动复制这条', content: text, showCancel: false, confirmText: '知道了' });
+  },
+
+  onShareAppMessage: function () {
+    const o = this.data.o;
+    const tail = o ? o.name + ' · ' : '';
+    return {
+      title: '鼠鼠的AI笔记 · ' + tail + '免费额度与期限',
+      path: '/pages/detail/detail?id=' + encodeURIComponent(this.offerId || '') + '&from=share'
+    };
+  },
+
+  onShareTimeline: function () {
+    const o = this.data.o;
+    const tail = o ? o.name + ' · ' : '';
+    return {
+      title: '鼠鼠的AI笔记 · ' + tail + '还在白嫖的 AI',
+      query: 'id=' + encodeURIComponent(this.offerId || '') + '&from=share'
+    };
   }
 });

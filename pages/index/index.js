@@ -106,6 +106,8 @@ Page({
   },
 
   onShow: function () {
+    // 启动阶段攒下的登录失败在这里呈现：此刻页面已就绪，弹窗看得到
+    if (getApp() && getApp().flushLoginError) getApp().flushLoginError();
     this.setData({ fontClass: repo.getFont() });
     this.tick();
     this.startTicker();
@@ -459,5 +461,21 @@ Page({
       showCancel: false,
       confirmText: '知道了'
     });
+  },
+
+  // 转发给好友/群：好友点开是完整小程序，功能都在
+  onShareAppMessage: function () {
+    return {
+      title: '鼠鼠的AI笔记 · 今天哪些 AI 还在白嫖',
+      path: '/pages/index/index?from=share'
+    };
+  },
+
+  // 朋友圈是单页模式，不能登录/投票，文案只讲内容、不承诺交互
+  onShareTimeline: function () {
+    return {
+      title: '鼠鼠的AI笔记 · 免费 AI 试用天梯每天更新',
+      query: 'from=share'
+    };
   }
 });

@@ -49,7 +49,7 @@
   </view>
 
   <view class="foot">
-    <text class="foot-t">周榜按本周一的零点起算，月榜按每月 1 号起算，到时间自然归零。票数现在存在本机，没有联网；接上后端之后才是「大家的最爱」。付费模型价格取自 OpenRouter，单位美元 / 百万 tokens。</text>
+    <text class="foot-t">周榜按本周一的零点起算，月榜按每月 1 号起算，到时间自然归零。票数已联网汇总，是大家投出来的「最爱」；登录后跨设备同步。付费模型价格取自 OpenRouter，单位美元 / 百万 tokens。</text>
     <view class="reset" bindtap="onReset">清空我的票</view>
   </view>
 
